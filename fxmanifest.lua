@@ -48,6 +48,7 @@ client_scripts {
     'client/progression.lua',
     'client/workshop.lua',
     'client/customer_jobs.lua',
+    'client/trip.lua',
 }
 
 server_scripts {

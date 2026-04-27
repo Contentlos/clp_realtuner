@@ -285,7 +285,7 @@
 
     function renderDtcDeep(d) {
         setId('dtc-plate', d.plate || '—');
-        const ul = document.getElementById('dtc-list');
+        const ul = document.getElementById('dtc-deep-list');
         if (!ul) return;
         ul.innerHTML = '';
         (d.codes || []).forEach(c => {

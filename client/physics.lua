@@ -41,6 +41,9 @@ RegisterNetEvent('clp_realtuner:physics:synced', function(plate, key, value)
 end)
 
 -- Anwendungs-Tick: wendet Werte aufs eigene Fahrzeug an --------------------
+-- Wir speichern den *original* fTractionLossMult pro NetId, sonst multipliziert sich
+-- der Wert jeden Tick weiter und das Fahrzeug wird innerhalb weniger Sekunden unfahrbar.
+local baseTractionLoss = {}
 CreateThread(function()
     while true do
         Wait(500)
@@ -53,9 +56,14 @@ CreateThread(function()
                 if rec.tc_enabled == false then
                     traction = traction - (Config.Physics.TC_TractionDropOff or 0.15)
                 end
-                -- Multiplikator auf bestehendes Handling (combined w/ Haupt-Handling.lua)
-                local baseLoss = GetVehicleHandlingFloat(veh, 'CHandlingData', 'fTractionLossMult') or 1.0
-                SetVehicleHandlingFloat(veh, 'CHandlingData', 'fTractionLossMult', baseLoss * (2 - traction))
+                local netId = NetworkGetNetworkIdFromEntity(veh)
+                if netId and netId ~= 0 then
+                    if baseTractionLoss[netId] == nil then
+                        baseTractionLoss[netId] = GetVehicleHandlingFloat(veh, 'CHandlingData', 'fTractionLossMult') or 1.0
+                    end
+                    SetVehicleHandlingFloat(veh, 'CHandlingData', 'fTractionLossMult',
+                        baseTractionLoss[netId] * (2 - traction))
+                end
                 -- ABS: echte Wirkung nur bei harter Bremse simulieren - bloßer Hint
                 if rec.abs_enabled == false and GetControlValue(0, 72) / 255.0 > 0.9 then
                     -- Wheels blockieren lassen: leicht reduzierten Bremsdruck

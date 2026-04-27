@@ -26,9 +26,9 @@
     function hide() { hud.classList.add('hidden'); }
 
     function gearLabel(g) {
+        // GTA V GetVehicleCurrentGear: 0 = reverse/neutral je nach Speed, 1 = 1st, 2 = 2nd, ...
         if (g === 0) return 'R';
-        if (g === 1) return 'N';
-        return (g - 1).toString();
+        return g.toString();
     }
 
     function setPill(node, on) {

@@ -65,8 +65,9 @@ CreateThread(function()
                     battery = rec and rec.battery or 100,
                     engineHP = rec and rec.engine_health or 100,
                     brakeHP = rec and rec.brake_health or 100,
-                    tcOn = rec and rec.tc_enabled ~= false or true,
-                    absOn = rec and rec.abs_enabled ~= false or true,
+                    -- Default: ON, wenn kein Record vorhanden oder Feld nil. Bei explizit false -> off.
+                    tcOn = (not rec) or rec.tc_enabled ~= false,
+                    absOn = (not rec) or rec.abs_enabled ~= false,
                     flap = rec and rec.exhaust_flap or false,
                     ecuMap = rec and rec.ecu_map or 'stock',
                     position = (Config.HUD and Config.HUD.Position) or 'bottom-right',

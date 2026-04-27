@@ -9,7 +9,10 @@ Config.Debug          = false                   -- ox_target Debug-Draw, Zusatz-
 Config.Locale         = 'de'
 Config.AdminGroups    = { admin = true, superadmin = true, owner = true }
 Config.MechanicJobs   = { mechanic = true, tuning = true, lscustoms = true } -- ESX jobs die Mechaniker-Aktionen ausführen dürfen
+Config.PoliceJobs     = { police = true, sheriff = true, fib = true, state = true } -- duerfen Polizei-Scanner benutzen
 Config.AllowOutsideJob = false                  -- true = jeder darf (Off-Road-Reparatur)
+Config.TUeVValidDays   = 365                    -- wie lange eine bestandene TUeV-Pruefung gilt
+Config.TUeVGracePeriod = 14                     -- Tage Toleranz nach Ablauf
 
 -- Persistenz ------------------------------------------------------------------
 Config.AutoSaveInterval     = 60 * 1000         -- ms, periodisches Speichern laufender Fahrzeuge

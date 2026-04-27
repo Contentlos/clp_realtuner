@@ -313,12 +313,21 @@ end)
 
 -- Schadens-Events vom Client -------------------------------------------------
 RegisterNetEvent('clp_realtuner:damage', function(plate, component, amount)
-    local xPlayer = ESX.GetPlayerFromId(source)
+    local src = source
+    local xPlayer = ESX.GetPlayerFromId(src)
     if not xPlayer then return end
     plate = HCM.util.normalizePlate(plate)
     local rec = HCM.server.loadRecord(plate)
     if not rec then return end
+    -- Nur positive Schadenswerte akzeptieren (keine Heilung durch Client)
     amount = tonumber(amount) or 0
+    if amount <= 0 or amount > 100 then return end
+    -- Der Client muss im Fahrzeug sitzen, sonst ist das Remote-Griefing.
+    local ped = GetPlayerPed(src)
+    local veh = GetVehiclePedIsIn(ped, false)
+    if veh == 0 then return end
+    local vehPlate = HCM.util.normalizePlate(GetVehicleNumberPlateText(veh) or '')
+    if vehPlate ~= plate then return end
     local field = ({
         engine='engine_health', turbo='turbo_health',
         brakes='brake_health', transmission='transmission_health',

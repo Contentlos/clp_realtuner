@@ -180,9 +180,11 @@ local function brakeStandRun(veh)
     -- Ergebnis
     local bh = rec.brake_health or 100
     local bf = rec.brake_fluid or 100
-    local leftKN = (bh / 100) * (6.0 + math.random() * 0.5) - math.random() * 0.3
-    local rightKN = (bh / 100) * (6.0 + math.random() * 0.5) - math.random() * 0.3
-    local imbalance = math.abs(leftKN - rightKN) / math.max(leftKN, rightKN) * 100
+    local leftKN = math.max(0, (bh / 100) * (6.0 + math.random() * 0.5) - math.random() * 0.3)
+    local rightKN = math.max(0, (bh / 100) * (6.0 + math.random() * 0.5) - math.random() * 0.3)
+    -- Schutz gegen Division durch 0/Negativ: bei 0 kN Seiten gilt Bremse als voellig unwuchtig.
+    local maxKN = math.max(leftKN, rightKN)
+    local imbalance = maxKN > 0 and (math.abs(leftKN - rightKN) / maxKN * 100) or 100
     local grade = bh > 80 and 'A' or bh > 60 and 'B' or bh > 40 and 'C' or bh > 20 and 'D' or 'F'
     local report = {
         plate = HCM_C.plateOf(veh),

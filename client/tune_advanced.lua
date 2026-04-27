@@ -101,8 +101,9 @@ end)
 RegisterNUICallback('tune:setWheelColor', function(data, cb)
     local veh = getVeh(); if veh == 0 then cb({ ok = false }); return end
     SetVehicleMod(veh, 23, GetVehicleMod(veh, 23), (data.custom and true) or false)
-    -- Bremssattel via extra color (Index 24 nutzt pearl fuer caliper seit manchen Updates)
-    local _, _, pearl, wheelCol = GetVehicleColours(veh)
+    -- Bremssattel via extra color (Index 24 nutzt pearl fuer caliper seit manchen Updates).
+    -- GetVehicleColours liefert nur primary/secondary; fuer pearl+wheel brauchen wir GetVehicleExtraColours.
+    local pearl, wheelCol = GetVehicleExtraColours(veh)
     SetVehicleExtraColours(veh, pearl or 0, tonumber(data.wheel) or wheelCol or 156)
     local plate = HCM_C.plateOf(veh)
     if plate then

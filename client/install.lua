@@ -196,16 +196,21 @@ function HCM_C.performInstall(entity, slotKey, part)
         end
     end
 
-    -- Tuning-Werte persistieren
+    -- Tuning-Werte zunaechst sichern, damit wir bei Server-Fehler sauber reverten koennen.
     local rec = HCM_C.getRecord(entity)
     local tuning = rec.tuning_data or {}
+    local oldTuning = {}
     for stat, val in pairs(part.tuning or {}) do
+        oldTuning[stat] = tuning[stat]
         tuning[stat] = (tuning[stat] or 0) + val
     end
 
     local ok, err = lib.callback.await('clp_realtuner:install', 3000, plate, part.item, slotKey)
     if not ok then
+        -- Revert der lokal mutierten Tuning-Werte.
+        for stat, prev in pairs(oldTuning) do tuning[stat] = prev end
         lib.notify({ title = 'Tuning', description = 'Einbau Server-Fehler: ' .. tostring(err), type = 'error' })
+        if HCM_C.applyHandling then HCM_C.applyHandling(entity) end
         return
     end
 
@@ -247,15 +252,19 @@ function HCM_C.performRemove(entity, slotKey)
         end
     end
 
-    -- Tuning subtrahieren
+    -- Tuning subtrahieren (mit Revert bei Server-Fehler)
     local tuning = rec.tuning_data or {}
+    local oldTuning = {}
     for stat, val in pairs(part and part.tuning or {}) do
+        oldTuning[stat] = tuning[stat]
         tuning[stat] = (tuning[stat] or 0) - val
     end
 
     local ok, err = lib.callback.await('clp_realtuner:remove', 2000, plate, slotKey)
     if not ok then
+        for stat, prev in pairs(oldTuning) do tuning[stat] = prev end
         lib.notify({ title = 'Tuning', description = 'Ausbau Fehler: ' .. tostring(err), type = 'error' })
+        if HCM_C.applyHandling then HCM_C.applyHandling(entity) end
         return
     end
     HCM_C.pushPatch(plate, { tuning_data = tuning }, 'remove_tuning')

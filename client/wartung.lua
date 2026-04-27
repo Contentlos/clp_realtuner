@@ -99,8 +99,12 @@ CreateThread(function()
                             rec.coolant_temp = temp
                             -- Batterie aufladen beim Fahren
                             rec.battery = math.min(100, (rec.battery or 100) + (w.BatteryChargePerMinDrive or 1.2) / 60 * (interval/1000))
-                            -- Lichter: brennen durch wenn an
-                            local lightsOn = IsVehicleInteriorLightOn(veh) or GetVehicleLightsState(veh) ~= 0
+                            -- Lichter: brennen durch wenn an. GetVehicleLightsState gibt (ok, lowBeam, highBeam)
+                            -- zurueck; das erste Return ist nur Erfolgs-Flag und wurde frueher faelschlich als Zustand
+                            -- interpretiert, was zu Dauerverschleiss fuehrte.
+                            local _, vehLowBeam, vehHighBeam = GetVehicleLightsState(veh)
+                            local lightsOn = IsVehicleInteriorLightOn(veh) or vehLowBeam == 1 or vehLowBeam == true
+                                or vehHighBeam == 1 or vehHighBeam == true
                             if lightsOn then
                                 rec.headlight_state = math.max(0, (rec.headlight_state or 100) - (w.BulbDecayPerHour or 0.25) / 3600 * (interval/1000))
                                 rec.rearlight_state = math.max(0, (rec.rearlight_state or 100) - (w.BulbDecayPerHour or 0.25) / 3600 * (interval/1000))

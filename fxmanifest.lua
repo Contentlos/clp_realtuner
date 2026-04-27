@@ -44,6 +44,7 @@ client_scripts {
     'client/diag_tools.lua',
     'client/dyno.lua',
     'client/visuals.lua',
+    'client/tune_advanced.lua',
 }
 
 server_scripts {

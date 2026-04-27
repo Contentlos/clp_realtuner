@@ -40,6 +40,24 @@ Parts['intake_cold']            = { item='intake_cold',            label='Kaltlu
 Parts['exhaust_sport']          = { item='exhaust_sport',          label='Sportauspuff',             category='engine', slot='exhaust',         modType=MOD.EXHAUST, modIndex=-1, quality=3, installTime=8000,  failChance=0.05, wearMult=1.0, tuning={ accel=4,  topspeed=2 } }
 Parts['exhaust_race']           = { item='exhaust_race',           label='Race Auspuff (Titan)',     category='engine', slot='exhaust',         modType=MOD.EXHAUST, modIndex=-1, quality=5, installTime=11000, failChance=0.10, wearMult=1.1, tuning={ accel=9,  topspeed=5 } }
 
+-- Nockenwellen-Tuning (Batch 5)
+Parts['cam_stage1']             = { item='cam_stage1',             label='Nockenwelle Stage 1',       category='engine', slot='camshaft',        modType=-1,        quality=3, installTime=14000, failChance=0.10, wearMult=1.1, tuning={ accel=6,  topspeed=2 } }
+Parts['cam_stage2']             = { item='cam_stage2',             label='Nockenwelle Stage 2',       category='engine', slot='camshaft',        modType=-1,        quality=4, installTime=16000, failChance=0.14, wearMult=1.2, tuning={ accel=12, topspeed=5 } }
+Parts['cam_stage3']             = { item='cam_stage3',             label='Nockenwelle Race',          category='engine', slot='camshaft',        modType=-1,        quality=5, installTime=18000, failChance=0.18, wearMult=1.4, tuning={ accel=18, topspeed=8 } }
+
+-- Einspritzer (Batch 5)
+Parts['injector_street']        = { item='injector_street',        label='Einspritzer Street',        category='engine', slot='injector',        modType=-1,        quality=3, installTime=9000,  failChance=0.07, wearMult=1.0, tuning={ accel=3 } }
+Parts['injector_sport']         = { item='injector_sport',         label='Einspritzer Sport',         category='engine', slot='injector',        modType=-1,        quality=4, installTime=10000, failChance=0.10, wearMult=1.1, tuning={ accel=7 } }
+Parts['injector_race']          = { item='injector_race',          label='Einspritzer Race',          category='engine', slot='injector',        modType=-1,        quality=5, installTime=12000, failChance=0.14, wearMult=1.3, tuning={ accel=14, topspeed=3 } }
+
+-- Supercharger (Batch 5) – Alternative zum Turbo
+Parts['supercharger']           = { item='supercharger',           label='Supercharger-Kit',         category='engine', slot='turbo',           modType=MOD.TURBO, modIndex=0, quality=5, installTime=22000, failChance=0.16, wearMult=1.3, tuning={ accel=22, topspeed=10 }, toggle=true, health={ target='turbo_health', add=100 } }
+
+-- Innenraum + Optik (Batch 5)
+Parts['leather_seats']          = { item='leather_seats',          label='Leder-Sportsitze',          category='body',   slot='seats',           modType=32,        modIndex=-1, quality=4, installTime=9000,  failChance=0.04, wearMult=1.0, tuning={} }
+Parts['sport_steering']         = { item='sport_steering',         label='Sport-Lenkrad',             category='body',   slot='steering_wheel',  modType=33,        modIndex=-1, quality=3, installTime=5000,  failChance=0.03, wearMult=1.0, tuning={} }
+Parts['neon_kit']               = { item='neon_kit',               label='Unterboden-Neon-Kit',       category='body',   slot='neon',            modType=-1,        quality=3, installTime=7000,  failChance=0.04, wearMult=1.0, tuning={} }
+
 -- ---------------------------------------------------------------------------
 --  GETRIEBE & BREMSEN
 -- ---------------------------------------------------------------------------

@@ -83,4 +83,20 @@ return {
                                 description = 'Kamera für Motor-Innenraum-Inspektion.' },
     ['torque_wrench']       = { label = 'Drehmoment-Schlüssel',      weight = 1500, stack = false, close = true,
                                 description = 'Reduziert Einbau-Fehlerchance um 40%.' },
+
+    -- Tuning-Tiefe (Batch 5) -----------------------------------------------
+    ['cam_stage1']          = { label = 'Nockenwelle Stage 1',       weight = 3000, stack = false },
+    ['cam_stage2']          = { label = 'Nockenwelle Stage 2',       weight = 3000, stack = false },
+    ['cam_stage3']          = { label = 'Nockenwelle Race',          weight = 3000, stack = false },
+    ['injector_street']     = { label = 'Einspritzer Street',        weight = 1200, stack = false },
+    ['injector_sport']      = { label = 'Einspritzer Sport',         weight = 1200, stack = false },
+    ['injector_race']       = { label = 'Einspritzer Race',          weight = 1300, stack = false },
+    ['supercharger']        = { label = 'Supercharger-Kit',          weight = 15000, stack = false,
+                                description = 'Alternativer Lader zum Turbo, konstanter Boost.' },
+    ['neon_kit']            = { label = 'Unterboden-Neon-Kit',       weight = 2500, stack = false },
+    ['wrap_vinyl']          = { label = 'Wrap-Folie',                weight = 1800, stack = true },
+    ['leather_seats']       = { label = 'Leder-Sportsitze',          weight = 12000, stack = false },
+    ['sport_steering']      = { label = 'Sport-Lenkrad',             weight = 2500, stack = false },
+    ['window_tint_film']    = { label = 'Scheibentönungs-Folie',     weight = 600,  stack = true },
+    ['caliper_paint']       = { label = 'Bremssattel-Lack',          weight = 400,  stack = true },
 }

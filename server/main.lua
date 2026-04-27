@@ -55,6 +55,15 @@ RegisterNetEvent('clp_realtuner:patch', function(plate, patch, reason)
         turbo_health=true, suspension_health=true, ecu_state=true,
         installed_parts=true, tuning_data=true, last_service=true,
         odometer=true, paint_quality=true, model=true,
+        -- Batch 1: Fluids / Verschleiss
+        oil_quality=true, oil_km=true, fuel_leak=true, battery=true,
+        headlight_state=true, rearlight_state=true, brake_fluid=true,
+        coolant=true, coolant_temp=true, spark_plug=true,
+        windshield_broken=true, rust=true, last_rain_ts=true,
+        -- Batch 5: optische Tunings + ECU Maps
+        ecu_map=true, neon=true, tint=true, interior_mods=true, wrap=true,
+        -- Batch 10: TUeV
+        tuev_expires=true,
     }
     local clean = {}
     for k, v in pairs(patch) do if allowed[k] then clean[k] = v end end

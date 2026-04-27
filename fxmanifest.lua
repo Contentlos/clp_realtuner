@@ -50,6 +50,9 @@ client_scripts {
     'client/customer_jobs.lua',
     'client/trip.lua',
     'client/police.lua',
+    'client/insurance.lua',
+    'bridges/fuel.lua',
+    'bridges/lbphone.lua',
 }
 
 server_scripts {
@@ -68,6 +71,7 @@ server_scripts {
     'server/workshop.lua',
     'server/customer_jobs.lua',
     'server/police.lua',
+    'server/insurance.lua',
 }
 
 ui_page 'html/index.html'
@@ -82,12 +86,14 @@ files {
     'html/admin.js',
     'html/hud.js',
     'html/diag.js',
+    'html/phone_app.html',
     'migrations/INDEX.txt',
     'migrations/000_base_schema_fix.sql',
     'migrations/001_fluids_and_wear.sql',
     'migrations/002_workshops.sql',
     'migrations/003_progression_racing_police.sql',
     'migrations/004_portfolio.sql',
+    'migrations/005_police.sql',
 }
 
 provide 'clp_realtuner'

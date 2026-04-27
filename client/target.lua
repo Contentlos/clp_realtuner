@@ -230,7 +230,8 @@ local options = {
             if not canInteractBase(entity) then return false end
             if not engineIsOff(entity) then return false end
             -- Nur in Paint Booth
-            return HCM_C.isInPaintBooth and HCM_C.isInPaintBooth(entity) or true
+            if HCM_C.isInPaintBooth then return HCM_C.isInPaintBooth(entity) end
+            return true
         end,
         onSelect = function(data) HCM_C.openPaint(data.entity) end,
     },

@@ -12,8 +12,8 @@
     const diagGrid = document.getElementById('diag-grid');
     const dtcList  = document.getElementById('dtc-list');
     const svcInfo  = document.getElementById('service-info');
-    const tabsBtns = document.querySelectorAll('.tabs button');
-    const tabs     = document.querySelectorAll('.tab');
+    const tabsBtns = document.querySelectorAll('#app .tabs button[data-tab]');
+    const tabs     = document.querySelectorAll('#app .tab');
     const tblInstalled = document.querySelector('#parts-installed tbody');
     const tblMissing   = document.querySelector('#parts-missing tbody');
     const tblUpgrade   = document.querySelector('#parts-upgrade tbody');

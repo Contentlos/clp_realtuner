@@ -100,20 +100,10 @@ exports('getNearestVehicle', function(radius)
     radius = radius or 5.0
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
-    local handle, veh = FindFirstVehicle()
-    local ok = true
-    local best, bestDist
-    while ok do
-        if DoesEntityExist(veh) then
-            local d = #(coords - GetEntityCoords(veh))
-            if d <= radius and (not bestDist or d < bestDist) then
-                best, bestDist = veh, d
-            end
-        end
-        ok, veh = FindNextVehicle(handle)
-    end
-    EndFindVehicle(handle)
-    return best
+    -- Effizient: GetClosestVehicle native statt FindFirstVehicle-Iteration
+    local best = GetClosestVehicle(coords.x, coords.y, coords.z, radius + 0.0, 0, 70)
+    if best and best ~= 0 and DoesEntityExist(best) then return best end
+    return nil
 end)
 
 -- Odometer Tracking (für Verschleiß) ----------------------------------------

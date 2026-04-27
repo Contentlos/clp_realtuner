@@ -76,9 +76,9 @@ CreateThread(function()
             TriggerServerEvent('clp_realtuner:damage', plate, 'brakes', 0.2)
         end
 
-        -- 5) Aufhängung Sprünge
-        local vx, vy, vz = GetEntityVelocity(veh)
-        if vz and math.abs(vz) > 6.0 then
+        -- 5) Aufhängung Sprünge (GetEntityVelocity -> vector3)
+        local vel = GetEntityVelocity(veh)
+        if vel and math.abs(vel.z or 0.0) > 6.0 then
             TriggerServerEvent('clp_realtuner:damage', plate, 'suspension', 0.8)
         end
 

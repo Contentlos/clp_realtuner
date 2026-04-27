@@ -2,10 +2,12 @@
 <html lang="de">
 <head>
     <meta charset="utf-8" />
-    <title>Mechaniker Tablet</title>
+    <title>Realtuner</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
+    <!-- ========== Mechaniker-Tablet ========== -->
     <div id="app" class="hidden">
         <div class="tablet">
             <header class="bar">
@@ -71,6 +73,125 @@
             </footer>
         </div>
     </div>
+
+    <!-- ========== Admin-Panel ========== -->
+    <div id="admin" class="hidden">
+        <div class="admin-root">
+            <header class="bar">
+                <div class="brand">
+                    <span class="dot danger"></span>
+                    <span class="title">REALTUNER ADMIN</span>
+                </div>
+                <div class="meta">
+                    <span class="tag">LIVE OVERRIDES</span>
+                    <button id="adm-close" class="close">&times;</button>
+                </div>
+            </header>
+
+            <nav class="tabs">
+                <button data-atab="config" class="active">Config</button>
+                <button data-atab="parts">Teile</button>
+                <button data-atab="vehicles">Fahrzeuge</button>
+                <button data-atab="logs">Logs</button>
+                <button data-atab="skills">Skills</button>
+                <button data-atab="locations">Locations</button>
+            </nav>
+
+            <main>
+                <section id="atab-config" class="atab active">
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Config-Baum</h3>
+                            <div id="config-tree" class="tree"></div>
+                        </div>
+                        <div class="panel">
+                            <h3>Bearbeiten</h3>
+                            <div id="config-edit" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-parts" class="atab">
+                    <div class="toolbar">
+                        <input id="parts-search" placeholder="Suche item / slot / category..." />
+                        <button id="parts-new" class="primary">Neues Teil</button>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Teile</h3>
+                            <table class="data" id="parts-list"><thead><tr>
+                                <th>Item</th><th>Slot</th><th>Qualität</th><th>Kategorie</th>
+                            </tr></thead><tbody></tbody></table>
+                        </div>
+                        <div class="panel">
+                            <h3>Editor</h3>
+                            <div id="parts-editor" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-vehicles" class="atab">
+                    <div class="toolbar">
+                        <input id="veh-search" placeholder="Platte / VIN / Modell" />
+                        <button id="veh-refresh" class="primary">Suchen</button>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel scroll">
+                            <table class="data" id="veh-list"><thead><tr>
+                                <th>Platte</th><th>VIN</th><th>Modell</th><th>Eng</th><th>Trn</th><th>Brk</th><th>Trb</th><th>Sus</th>
+                            </tr></thead><tbody></tbody></table>
+                        </div>
+                        <div class="panel">
+                            <h3>Fahrzeug-Detail</h3>
+                            <div id="veh-detail" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-logs" class="atab">
+                    <div class="toolbar">
+                        <input id="log-plate" placeholder="Plate" />
+                        <input id="log-id"    placeholder="Identifier (license:...)" />
+                        <input id="log-action" placeholder="Action" />
+                        <button id="log-refresh" class="primary">Laden</button>
+                    </div>
+                    <div class="panel scroll">
+                        <table class="data" id="log-list"><thead><tr>
+                            <th>Zeit</th><th>Charakter</th><th>Action</th><th>Plate</th><th>Detail</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+
+                <section id="atab-skills" class="atab">
+                    <div class="toolbar">
+                        <input id="skill-search" placeholder="Identifier..." />
+                        <button id="skill-refresh" class="primary">Laden</button>
+                    </div>
+                    <div class="panel scroll">
+                        <table class="data" id="skill-list"><thead><tr>
+                            <th>Identifier</th><th>Level</th><th>XP</th><th>Repairs</th><th>Installs</th><th>Aktion</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+
+                <section id="atab-locations" class="atab">
+                    <div class="panel">
+                        <h3>Paint Booths</h3>
+                        <button id="booth-here" class="primary">Hier hinzufügen</button>
+                        <table class="data" id="booths-list"><thead><tr>
+                            <th>#</th><th>Koord</th><th>Heading</th><th>Radius</th><th>Aktion</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="bar">
+                <span id="adm-footer">Änderungen werden sofort auf alle Clients gesynct und in data/runtime.json persistiert.</span>
+            </footer>
+        </div>
+    </div>
+
     <script src="app.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

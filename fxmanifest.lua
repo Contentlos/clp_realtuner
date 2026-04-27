@@ -26,6 +26,7 @@ shared_scripts {
 
 client_scripts {
     'client/main.lua',
+    'client/runtime.lua',
     'client/diagnostics.lua',
     'client/scan.lua',
     'client/target.lua',
@@ -35,14 +36,17 @@ client_scripts {
     'client/damage.lua',
     'client/handling.lua',
     'client/tablet.lua',
+    'client/adminui.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/vin.lua',
+    'server/runtime.lua',
     'server/main.lua',
     'server/logging.lua',
     'server/admin.lua',
+    'server/adminapi.lua',
 }
 
 ui_page 'html/index.html'
@@ -50,7 +54,9 @@ ui_page 'html/index.html'
 files {
     'html/index.html',
     'html/style.css',
+    'html/admin.css',
     'html/app.js',
+    'html/admin.js',
 }
 
 provide 'clp_realtuner'

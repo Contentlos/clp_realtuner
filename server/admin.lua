@@ -12,7 +12,7 @@ end
 
 local function usage(src, cmd)
     TriggerClientEvent('chat:addMessage', src, {
-        args = { '[realtuner]', ('Usage: /%s <dump|reset|setvin|setstat> [args]'):format(cmd) }
+        args = { '[realtuner]', ('Usage: /%s <open|dump|reset|setvin|setstat> [args]'):format(cmd) }
     })
 end
 
@@ -58,6 +58,9 @@ RegisterCommand(Config.AdminCommand, function(src, args)
         HCM.server.applyPatch(plate, { [field] = value })
         HCM.server.log(xPlayer, 'admin:setstat:' .. field, plate, nil, { value = value })
         TriggerClientEvent('chat:addMessage', src, { args = { '[realtuner]', ('Set %s = %s'):format(field, value) } })
+
+    elseif sub == 'open' or sub == 'ui' then
+        TriggerClientEvent('clp_realtuner:openAdmin', src)
 
     elseif sub == 'setvin' then
         local plate = HCM.util.normalizePlate(args[2] or '')

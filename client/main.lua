@@ -28,7 +28,9 @@ function HCM_C.getRecord(veh, force)
     end
     HCM_C.pending[plate] = true
     local model = GetDisplayNameFromVehicleModel(GetEntityModel(veh))
-    local rec = lib.callback.await('clp_realtuner:load', 1500, plate, model)
+    -- 20s Timeout damit erster Aufruf nach Resource-Start die Migrationen
+    -- durch hat (ALTER TABLE auf grosser vehicles_data kann 5-10s dauern).
+    local rec = lib.callback.await('clp_realtuner:load', 20000, plate, model)
     HCM_C.pending[plate] = nil
     if rec then
         HCM_C.records[plate] = rec

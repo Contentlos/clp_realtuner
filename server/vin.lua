@@ -79,9 +79,21 @@ function HCM.server.loadRecord(plate, model)
     end
     loading[plate] = true
 
-    local row = MySQL.single.await(
-        'SELECT * FROM vehicles_data WHERE plate = ? LIMIT 1', { plate }
-    )
+    -- Migrationen muessen durch sein, sonst koennte die INSERT-Liste eine
+    -- noch nicht existierende Spalte (z.B. vin) referenzieren und werfen.
+    if HCM.server.waitForMigrations then
+        HCM.server.waitForMigrations(15000)
+    end
+
+    local okSel, row = pcall(function()
+        return MySQL.single.await(
+            'SELECT * FROM vehicles_data WHERE plate = ? LIMIT 1', { plate }
+        )
+    end)
+    if not okSel then
+        print(('[realtuner] loadRecord SELECT-Fehler fuer %s: %s'):format(plate, tostring(row)))
+        row = nil
+    end
 
     local rec
     if row then
@@ -129,10 +141,22 @@ function HCM.server.loadRecord(plate, model)
         rec.plate = plate
         rec.model = model
         rec.vin   = HCM.util.generateVIN(plate, model, os.time())
-        MySQL.insert.await(
-            'INSERT INTO vehicles_data (plate, vin, model, ecu_state, installed_parts, tuning_data, last_service) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            { plate, rec.vin, model or nil, jsonEncode(rec.ecu_state), jsonEncode(rec.installed_parts), jsonEncode(rec.tuning_data), os.time() }
-        )
+        -- Defensiv: nur Core-Spalten einfuegen. Alles andere macht der erste Save.
+        local okIns, errIns = pcall(function()
+            MySQL.insert.await(
+                'INSERT INTO vehicles_data (plate, vin, model, ecu_state, installed_parts, tuning_data, last_service) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                { plate, rec.vin, model or nil, jsonEncode(rec.ecu_state),
+                  jsonEncode(rec.installed_parts), jsonEncode(rec.tuning_data), os.time() }
+            )
+        end)
+        if not okIns then
+            print(('[realtuner] loadRecord INSERT-Fehler fuer %s: %s (wird lokal gecached)'):format(plate, tostring(errIns)))
+            -- Fallback minimal: vielleicht existiert plate-column nur. Versuchen
+            -- auf 'plate' zu reduzieren, damit zumindest ein Eintrag existiert.
+            pcall(function()
+                MySQL.insert.await('INSERT IGNORE INTO vehicles_data (plate) VALUES (?)', { plate })
+            end)
+        end
     end
 
     cache[plate] = rec

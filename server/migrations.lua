@@ -4,6 +4,20 @@
 --  noch nicht angewandte Migration genau einmal aus. State in `_hcm_migrations`.
 -- =============================================================================
 
+HCM = HCM or {}
+HCM.server = HCM.server or {}
+HCM.server._migrationsReady = false
+
+--- Blockiert bis Migrationen durch sind (max 15s). Nutze in allen DB-Zugriffen,
+--- die neue Spalten/Tabellen voraussetzen.
+function HCM.server.waitForMigrations(timeoutMs)
+    local deadline = GetGameTimer() + (timeoutMs or 15000)
+    while not HCM.server._migrationsReady and GetGameTimer() < deadline do
+        Wait(50)
+    end
+    return HCM.server._migrationsReady
+end
+
 local RESOURCE = GetCurrentResourceName()
 
 local function listMigrations()
@@ -129,4 +143,5 @@ CreateThread(function()
         end
     end
     print(('[realtuner] Migrations: %d neu, %d bereits vorhanden.'):format(applied, skipped))
+    HCM.server._migrationsReady = true
 end)

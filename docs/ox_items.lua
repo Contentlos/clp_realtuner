@@ -99,4 +99,10 @@ return {
     ['sport_steering']      = { label = 'Sport-Lenkrad',             weight = 2500, stack = false },
     ['window_tint_film']    = { label = 'Scheibentönungs-Folie',     weight = 600,  stack = true },
     ['caliper_paint']       = { label = 'Bremssattel-Lack',          weight = 400,  stack = true },
+
+    -- Zertifikate (Batch 6) ------------------------------------------------
+    ['cert_geselle']        = { label = 'Zertifikat – Geselle',      weight = 10, stack = false,
+                                description = 'Offizielles Mechaniker-Gesellen-Zertifikat.' },
+    ['cert_meister']        = { label = 'Zertifikat – Meister',      weight = 10, stack = false,
+                                description = 'Offizielles Meister-Zertifikat.' },
 }

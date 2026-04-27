@@ -45,6 +45,7 @@ client_scripts {
     'client/dyno.lua',
     'client/visuals.lua',
     'client/tune_advanced.lua',
+    'client/progression.lua',
 }
 
 server_scripts {
@@ -59,6 +60,7 @@ server_scripts {
     'server/adminapi.lua',
     'server/diagnostics.lua',
     'server/dyno.lua',
+    'server/progression.lua',
 }
 
 ui_page 'html/index.html'
@@ -78,6 +80,7 @@ files {
     'migrations/001_fluids_and_wear.sql',
     'migrations/002_workshops.sql',
     'migrations/003_progression_racing_police.sql',
+    'migrations/004_portfolio.sql',
 }
 
 provide 'clp_realtuner'

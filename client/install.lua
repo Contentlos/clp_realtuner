@@ -17,6 +17,15 @@ local function withSkill(time, failChance)
         chance = math.max(0.005, chance * 0.6)
         dur = math.max(Config.Install.MinDuration, dur * 0.9)
     end
+    -- Werkstatt-Buffs (Food/Kaffee/Radio) + Tool-Tier (Batch 7)
+    if HCM_C.getWorkshopBuffPenaltyMult then
+        chance = math.max(0.002, chance * HCM_C.getWorkshopBuffPenaltyMult())
+    end
+    if HCM_C.currentWorkshopToolTier and HCM_C.currentWorkshopToolTier > 1 then
+        local tier = HCM_C.currentWorkshopToolTier
+        dur = math.max(Config.Install.MinDuration, dur * (1.0 - 0.10 * (tier - 1)))
+        chance = math.max(0.002, chance * (1.0 - 0.15 * (tier - 1)))
+    end
     return dur, chance
 end
 

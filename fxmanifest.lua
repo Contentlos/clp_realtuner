@@ -46,6 +46,7 @@ client_scripts {
     'client/visuals.lua',
     'client/tune_advanced.lua',
     'client/progression.lua',
+    'client/workshop.lua',
 }
 
 server_scripts {
@@ -61,6 +62,7 @@ server_scripts {
     'server/diagnostics.lua',
     'server/dyno.lua',
     'server/progression.lua',
+    'server/workshop.lua',
 }
 
 ui_page 'html/index.html'

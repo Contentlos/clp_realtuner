@@ -6,12 +6,17 @@ HCM_C = HCM_C or {}
 
 local ox = exports.ox_inventory
 
--- Hilfsfunktion: Dauer mit Skill-Bonus
+-- Hilfsfunktion: Dauer mit Skill-Bonus + Drehmoment-Schluessel-Bonus
 local function withSkill(time, failChance)
     local lvl = (HCM_C.me and HCM_C.me.skill and HCM_C.me.skill.level) or 1
     local dur = math.max(Config.Install.MinDuration, time * (1 - (lvl - 1) * (Config.Skill.SpeedBonusPerLevel or 0.04)))
     dur = math.min(dur, Config.Install.MaxDuration)
     local chance = math.max(0.01, failChance - (lvl - 1) * (Config.Skill.FailRateReductionPerLevel or 0.03))
+    -- Drehmoment-Schluessel: -40% Fehlerchance, -10% Dauer
+    if HCM_C.hasTorqueWrench and HCM_C.hasTorqueWrench() then
+        chance = math.max(0.005, chance * 0.6)
+        dur = math.max(Config.Install.MinDuration, dur * 0.9)
+    end
     return dur, chance
 end
 

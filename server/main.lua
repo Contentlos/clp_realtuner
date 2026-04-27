@@ -265,6 +265,22 @@ if Config.Tablet.Item then
     end)
 end
 
+-- Diagnose-Tools via Item (Batch 2) ------------------------------------------
+CreateThread(function()
+    local diagItems = {
+        obd_scanner = 'clp_realtuner:useItem:obd',
+        endoscope   = 'clp_realtuner:useItem:endoscope',
+    }
+    for item, ev in pairs(diagItems) do
+        ox:registerHook('usingItem', function(payload)
+            if payload.item.name == item then
+                TriggerClientEvent(ev, payload.source)
+                return false
+            end
+        end, { itemFilter = { [item] = true } })
+    end
+end)
+
 -- Odometer Updates vom Client ------------------------------------------------
 RegisterNetEvent('clp_realtuner:odometer', function(plate, delta)
     local xPlayer = ESX.GetPlayerFromId(source)

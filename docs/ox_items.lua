@@ -68,4 +68,19 @@ return {
     ['oil_full_synth']      = { label = 'Motoröl (Vollsynthetik)',   weight = 1200, stack = true },
     ['coolant']             = { label = 'Kühlmittel',                weight = 1500, stack = true },
     ['brake_pad_set']       = { label = 'Bremsbeläge',               weight = 2000, stack = true },
+    ['brake_fluid']         = { label = 'Bremsflüssigkeit',          weight = 800,  stack = true },
+    ['spark_plug']          = { label = 'Zündkerzen (Satz)',         weight = 400,  stack = true },
+    ['battery']             = { label = 'Autobatterie',              weight = 15000, stack = false },
+    ['headlight_bulb']      = { label = 'Scheinwerfer-Birne',        weight = 200,  stack = true },
+    ['rearlight_bulb']      = { label = 'Rücklicht-Birne',           weight = 200,  stack = true },
+    ['windshield_repair']   = { label = 'Windschutzscheiben-Kit',    weight = 5000, stack = false },
+    ['rust_remover']        = { label = 'Rostentferner + Lack',      weight = 1500, stack = true },
+
+    -- Diagnose-Tools (Batch 2) --------------------------------------------
+    ['obd_scanner']         = { label = 'OBD-Scanner',               weight = 600,  stack = false, close = true,
+                                description = 'Liest Live-Daten und DTC-Codes aus jedem Fahrzeug.' },
+    ['endoscope']           = { label = 'Endoskop-Kamera',           weight = 1000, stack = false, close = true,
+                                description = 'Kamera für Motor-Innenraum-Inspektion.' },
+    ['torque_wrench']       = { label = 'Drehmoment-Schlüssel',      weight = 1500, stack = false, close = true,
+                                description = 'Reduziert Einbau-Fehlerchance um 40%.' },
 }

@@ -280,8 +280,116 @@
         </div>
     </div>
 
+    <!-- ========== Diagnose-Overlays (Batch 2) ========== -->
+    <div id="diag" class="hidden diag-root">
+        <!-- OBD Live -->
+        <section id="diag-obd" class="diag-panel hidden">
+            <header>
+                <h2>OBD-II Live Scanner</h2>
+                <div><span id="obd-plate"></span> · <span id="obd-model"></span></div>
+                <button class="close" data-close="obd">×</button>
+            </header>
+            <div class="obd-grid">
+                <div class="gauge big">
+                    <label>RPM</label><b id="obd-rpm">0</b>
+                    <div class="bar"><div id="obd-rpm-bar"></div></div>
+                </div>
+                <div class="gauge big"><label>KM/H</label><b id="obd-speed">0</b></div>
+                <div class="gauge"><label>Kühlmittel °C</label><b id="obd-ct">85</b></div>
+                <div class="gauge"><label>Öl Qualität</label><b id="obd-oil">100%</b></div>
+                <div class="gauge"><label>Öl km</label><b id="obd-oilkm">0</b></div>
+                <div class="gauge"><label>Batterie</label><b id="obd-batt">100%</b></div>
+                <div class="gauge"><label>Zündkerzen</label><b id="obd-spark">100%</b></div>
+                <div class="gauge"><label>Bremsflüssigk.</label><b id="obd-bf">100%</b></div>
+                <div class="gauge"><label>Kühlmittel</label><b id="obd-coolant">100%</b></div>
+                <div class="gauge"><label>Leck</label><b id="obd-leak">0</b></div>
+                <div class="gauge"><label>Rost</label><b id="obd-rust">0%</b></div>
+                <div class="gauge"><label>Motor HP</label><b id="obd-eng">100%</b></div>
+                <div class="gauge"><label>Getriebe HP</label><b id="obd-tran">100%</b></div>
+                <div class="gauge"><label>Bremse HP</label><b id="obd-brk">100%</b></div>
+                <div class="gauge"><label>Turbo HP</label><b id="obd-tur">100%</b></div>
+                <div class="gauge"><label>Fahrwerk HP</label><b id="obd-sus">100%</b></div>
+                <div class="gauge"><label>TC</label><b id="obd-tc">AN</b></div>
+                <div class="gauge"><label>ABS</label><b id="obd-abs">AN</b></div>
+                <div class="gauge"><label>Auspuffklappe</label><b id="obd-flap">ZU</b></div>
+                <div class="gauge"><label>ECU MAP</label><b id="obd-map">stock</b></div>
+            </div>
+            <div class="obd-codes">
+                <h3>Fehlercodes (DTC)</h3>
+                <ul id="obd-dtc"></ul>
+            </div>
+        </section>
+
+        <!-- Endoskop -->
+        <section id="diag-endo" class="diag-panel hidden">
+            <header>
+                <h2>Endoskop – Motor-Innenraum</h2>
+                <div><span id="endo-plate"></span></div>
+                <button class="close" data-close="endo">×</button>
+            </header>
+            <div class="endo-grid">
+                <div class="endo-stat"><label>Karbon-Ablagerung</label><div class="bar"><div id="endo-carbon"></div></div><b id="endo-carbon-v">0%</b></div>
+                <div class="endo-stat"><label>Ölschlamm</label><div class="bar"><div id="endo-sludge"></div></div><b id="endo-sludge-v">0%</b></div>
+                <div class="endo-stat"><label>Zündkerzen-Verschleiß</label><div class="bar"><div id="endo-spark"></div></div><b id="endo-spark-v">0%</b></div>
+                <div class="endo-stat"><label>Turboschaufeln</label><div class="bar"><div id="endo-turbo"></div></div><b id="endo-turbo-v">0%</b></div>
+                <div class="endo-stat"><label>Kraftstoffspuren</label><div class="bar"><div id="endo-leak"></div></div><b id="endo-leak-v">0%</b></div>
+                <div class="endo-stat"><label>Kühlmittelreste</label><div class="bar"><div id="endo-coolres"></div></div><b id="endo-coolres-v">0%</b></div>
+                <div class="endo-stat"><label>Rost innen</label><div class="bar"><div id="endo-rust"></div></div><b id="endo-rust-v">0%</b></div>
+            </div>
+        </section>
+
+        <!-- Bremsenprüfstand -->
+        <section id="diag-brake" class="diag-panel hidden">
+            <header>
+                <h2>Bremsenprüfstand – Ergebnis</h2>
+                <div><span id="brk-plate"></span></div>
+                <button class="close" data-close="brake">×</button>
+            </header>
+            <div class="brk-grid">
+                <div class="brk-row"><label>Bremskraft Links</label><b id="brk-left">0 kN</b></div>
+                <div class="brk-row"><label>Bremskraft Rechts</label><b id="brk-right">0 kN</b></div>
+                <div class="brk-row"><label>Differenz</label><b id="brk-imb">0%</b></div>
+                <div class="brk-row"><label>Bremsflüssigkeit</label><b id="brk-bf">100%</b></div>
+                <div class="brk-row"><label>Note</label><b id="brk-grade">A</b></div>
+                <div class="brk-row"><label>Legal</label><b id="brk-legal">Ja</b></div>
+            </div>
+        </section>
+
+        <!-- Emissionen -->
+        <section id="diag-emissions" class="diag-panel hidden">
+            <header>
+                <h2>Emissions-Prüfung (TÜV)</h2>
+                <div><span id="em-plate"></span></div>
+                <button class="close" data-close="emissions">×</button>
+            </header>
+            <div class="em-grid">
+                <div class="em-row"><label>CO</label><b id="em-co">0.0%</b></div>
+                <div class="em-row"><label>HC</label><b id="em-hc">0 ppm</b></div>
+                <div class="em-row"><label>NOx</label><b id="em-nox">0 ppm</b></div>
+                <div class="em-row"><label>ECU Map</label><b id="em-map">stock</b></div>
+                <div class="em-row em-result"><label>Ergebnis</label><b id="em-result">—</b></div>
+            </div>
+            <div class="em-failures">
+                <h3>Mängel</h3>
+                <ul id="em-fails"></ul>
+            </div>
+        </section>
+
+        <!-- DTC Deep -->
+        <section id="diag-dtc" class="diag-panel hidden">
+            <header>
+                <h2>DTC Deep-Dive</h2>
+                <div><span id="dtc-plate"></span></div>
+                <button class="close" data-close="dtc">×</button>
+            </header>
+            <ul id="dtc-list" class="dtc-list"></ul>
+        </section>
+    </div>
+
+    <link rel="stylesheet" href="diag.css" />
     <script src="app.js"></script>
     <script src="admin.js"></script>
     <script src="hud.js"></script>
+    <script src="diag.js"></script>
 </body>
 </html>

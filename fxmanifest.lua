@@ -41,6 +41,7 @@ client_scripts {
     'client/physics.lua',
     'client/audio.lua',
     'client/hud.lua',
+    'client/diag_tools.lua',
 }
 
 server_scripts {
@@ -53,6 +54,7 @@ server_scripts {
     'server/wartung.lua',
     'server/admin.lua',
     'server/adminapi.lua',
+    'server/diagnostics.lua',
 }
 
 ui_page 'html/index.html'
@@ -62,9 +64,11 @@ files {
     'html/style.css',
     'html/admin.css',
     'html/hud.css',
+    'html/diag.css',
     'html/app.js',
     'html/admin.js',
     'html/hud.js',
+    'html/diag.js',
     'migrations/INDEX.txt',
     'migrations/000_base_schema_fix.sql',
     'migrations/001_fluids_and_wear.sql',

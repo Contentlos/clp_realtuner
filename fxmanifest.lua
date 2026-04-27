@@ -37,14 +37,20 @@ client_scripts {
     'client/handling.lua',
     'client/tablet.lua',
     'client/adminui.lua',
+    'client/wartung.lua',
+    'client/physics.lua',
+    'client/audio.lua',
+    'client/hud.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'server/migrations.lua',
     'server/vin.lua',
     'server/runtime.lua',
     'server/main.lua',
     'server/logging.lua',
+    'server/wartung.lua',
     'server/admin.lua',
     'server/adminapi.lua',
 }
@@ -55,8 +61,15 @@ files {
     'html/index.html',
     'html/style.css',
     'html/admin.css',
+    'html/hud.css',
     'html/app.js',
     'html/admin.js',
+    'html/hud.js',
+    'migrations/INDEX.txt',
+    'migrations/000_base_schema_fix.sql',
+    'migrations/001_fluids_and_wear.sql',
+    'migrations/002_workshops.sql',
+    'migrations/003_progression_racing_police.sql',
 }
 
 provide 'clp_realtuner'

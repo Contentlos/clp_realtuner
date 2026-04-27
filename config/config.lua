@@ -121,3 +121,179 @@ Config.Tablet = {
 -- Admin / Logs ----------------------------------------------------------------
 Config.AdminCommand       = 'hcmadmin'          -- /hcmadmin dump <plate>
 Config.LogRetentionDays   = 90
+
+-- =============================================================================
+--  Wartung, Flüssigkeiten, Verschleiß (Batch 1)
+-- =============================================================================
+Config.Wartung = {
+    Interval          = 5000,  -- ms, client tick fuer Fluessigkeiten
+    -- Öl: pro gefahrenem km verliert Qualitaet; ab X km Dringlicher Wechsel
+    OilKmWarn         = 3000,
+    OilKmCritical     = 6000,
+    OilQualityPerKm   = 0.012,
+    -- Zündkerzen: Verschleiß pro km + Redline-Strafe
+    SparkPlugPerKm    = 0.008,
+    SparkPlugRedlinePer10s = 0.5,  -- bei Redline laufen, verliert zusaetzlich
+    -- Batterie: entlaedt ueber Zeit (Standzeit) und bei gezogenem Strom
+    BatteryDrainPerHour   = 0.8,  -- %/h Standzeit
+    BatteryDrainPerMinRun = 0.04, -- %/min Motor laeuft zieht minimal (Reserve)
+    BatteryChargePerMinDrive = 1.2,
+    BatteryNoStartBelow   = 10,
+    -- Lichter: brennen durch bei hoher Benutzung
+    BulbDecayPerHour      = 0.25,
+    -- Bremsfluessigkeit: verliert bei Hard-Brake
+    BrakeFluidPerHardBrake = 0.03,
+    BrakeFluidLeakOnCrashAbove = 25.0,  -- Crash-Damage in % -> Leck moeglich
+    -- Kuehlmittel
+    CoolantBoilTemp       = 108,  -- °C ab wann Engine Damage
+    CoolantAmbient        = 20,
+    CoolantWarmupPerSecondRun = 1.5,
+    CoolantCoolDownPerSecondOff = 0.8,
+    CoolantLeakOnCrash    = 0.6,  -- je % crash -> %/s Verlust
+    -- Rost
+    RustPerHourOutdoor    = 0.015,
+    RustResetOnService    = true,
+    RustPaintProtect      = 0.4,  -- Multiplikator wenn paint_quality > 80
+    -- Turbo Lag
+    TurboLagMinMult       = 0.35, -- bei turbo_health = 0: 0.35x Response
+    -- Scheibenbruch-Repair
+    WindshieldRepairItem  = 'windshield_kit',
+    WindshieldRepairTime  = 12000,
+}
+
+-- =============================================================================
+--  Physik-Toggles (Batch 1)
+-- =============================================================================
+Config.Physics = {
+    -- Traction Control: wenn off -> leichteres Drift, mehr Grip-Verlust bei Vollgas
+    TC_TractionDropOff    = 0.15,  -- Faktor wenn TC aus
+    ABS_BrakeDropOff      = 0.25,  -- ohne ABS: blockieren lassen, laenger Bremsweg
+    -- Aerodynamik durch Bodykits
+    Aero = {
+        -- modIndex im modType 'spoiler' -> Downforce-Faktor (0 = keiner, 1 = stock, >1 = mehr)
+        SpoilerMult       = { [0] = 1.0, [1] = 1.15, [2] = 1.25, [3] = 1.35, [4] = 1.45 },
+        BodyKitMult       = { [0] = 1.0, [1] = 1.10, [2] = 1.18, [3] = 1.28 },
+        DragPenaltyMult   = 0.95, -- schweres Bodykit reduziert Top-Speed
+    },
+    -- Auspuffklappe: lauter + leichte RPM-Gewinn / Fuel-Verbrauch-Verlust
+    ExhaustFlap = {
+        BackfireChance    = 0.08, -- pro Lift-Off bei offener Klappe
+        VolumeMult        = 1.8,
+        TorqueMult        = 1.04,
+    },
+}
+
+-- =============================================================================
+--  ECU-Maps (Eco/Sport/Race) - Batch 5, Konfig hier weil shared
+-- =============================================================================
+Config.ECUMaps = {
+    stock = { label = 'Stock',  afr = 14.7, torque = 1.00, fuel = 1.00, riskMult = 0.0 },
+    eco   = { label = 'Eco',    afr = 15.2, torque = 0.92, fuel = 0.85, riskMult = 0.0 },
+    sport = { label = 'Sport',  afr = 13.8, torque = 1.12, fuel = 1.10, riskMult = 0.10 },
+    race  = { label = 'Race',   afr = 12.8, torque = 1.28, fuel = 1.30, riskMult = 0.35 },
+}
+
+-- =============================================================================
+--  TÜV / Inspektion (Batch 10)
+-- =============================================================================
+Config.TUeV = {
+    Enabled        = true,
+    ValidDays      = 365,
+    InspectionPrice = 250,
+    FailThresholds = {
+        engine_health = 40,
+        brake_health  = 45,
+        suspension_health = 40,
+        brake_fluid   = 25,
+        coolant       = 25,
+        rust          = 70,
+        headlight_state = 40,
+        rearlight_state = 40,
+        windshield_broken = 0,
+    },
+}
+
+-- =============================================================================
+--  HUD / UI (Batch 3)
+-- =============================================================================
+Config.HUD = {
+    Enabled           = true,
+    Key               = 'F7',
+    DefaultEnabled    = true,
+    Refresh           = 250,  -- ms
+    Position          = 'bottom-right',
+    ShowBoost         = true,
+    ShowOilPressure   = true,
+    ShowCoolantTemp   = true,
+    ShowBattery       = true,
+}
+
+-- =============================================================================
+--  Audio FX (Batch 4)
+-- =============================================================================
+Config.AudioFX = {
+    Enabled              = true,
+    BackfireMinHealth    = 40,   -- bereits bei 40 fehlerzuendungen
+    TurboWhistleVolume   = 0.8,
+    GearboxRattleBelow   = 50,
+    BrakeSqueakBelow     = 45,
+    ExhaustPopsOnLiftoff = true,
+}
+
+-- =============================================================================
+--  Insurance (Batch 11)
+-- =============================================================================
+Config.Insurance = {
+    Enabled = true,
+    Plans = {
+        basic = { label = 'Basic',   price = 2500,  deductible = 1000, sum = 8000,  days = 30 },
+        full  = { label = 'Vollkasko', price = 6500,  deductible = 500,  sum = 25000, days = 30 },
+    },
+    ClaimTimeoutMinutes = 15,
+}
+
+-- =============================================================================
+--  Dyno / Racing (Batch 9)
+-- =============================================================================
+Config.Dyno = {
+    Enabled           = true,
+    ZeroHundredTarget = 100.0,    -- km/h
+    QuarterMile       = 402.336,  -- m
+    RecordKeepTop     = 50,
+}
+
+-- =============================================================================
+--  Mechaniker-Progression (Batch 6)
+-- =============================================================================
+Config.Progression = {
+    Tiers = {
+        lehrling  = { minLevel = 1,  label = 'Lehrling',   failMult = 1.00, speedMult = 1.00 },
+        geselle   = { minLevel = 4,  label = 'Geselle',    failMult = 0.75, speedMult = 1.10 },
+        meister   = { minLevel = 8,  label = 'Meister',    failMult = 0.50, speedMult = 1.25 },
+    },
+    Specializations = {
+        motor      = { label = 'Motor-Spezialist',   failMultOn = { 'engine', 'turbo' },       bonus = 0.3 },
+        bremsen    = { label = 'Bremsen-Spezialist', failMultOn = { 'brakes' },                bonus = 0.35 },
+        lack       = { label = 'Lackierer',          paintBonus = 0.25 },
+        elektrik   = { label = 'Elektrik-Spezialist',failMultOn = { 'ecu', 'lights', 'battery' }, bonus = 0.3 },
+    },
+    CertificateItem = 'mechanic_certificate',
+    ExamItem        = 'mechanic_exam_paper',
+}
+
+-- =============================================================================
+--  Fuel-Bridge (Batch 11)
+-- =============================================================================
+Config.FuelBridge = {
+    -- Provider: 'auto' (detect), 'ox_fuel', 'LegacyFuel', 'cdn_fuel', 'qs_fuelstations', 'ps-fuel', 'none'
+    Provider = 'auto',
+    WrongFuelDamagePerUnit = 0.25,  -- Motor-Health-Verlust pro Liter falscher Sprit
+}
+
+-- =============================================================================
+--  Phone Bridge (Batch 11)
+-- =============================================================================
+Config.PhoneBridge = {
+    Provider = 'auto',          -- auto, lb-phone, qs-smartphone, okokPhone, yseries, none
+    AppIdentifier = 'realtuner',
+}

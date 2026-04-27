@@ -1,7 +1,15 @@
 -- =============================================================================
---  clp_hardcore_mechanic - SQL Schema
+--  clp_realtuner - SQL Schema (base)
 --  Voraussetzung: MariaDB 10.4+ / MySQL 8+
+--  Weitere Schema-Erweiterungen liegen unter `migrations/` und werden beim
+--  Resource-Start automatisch durchgelaufen (server/migrations.lua).
 -- =============================================================================
+
+CREATE TABLE IF NOT EXISTS `_hcm_migrations` (
+    `id`         VARCHAR(64)  NOT NULL,
+    `applied_at` BIGINT       NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `vehicles_data` (
     `plate`                VARCHAR(16)  NOT NULL,

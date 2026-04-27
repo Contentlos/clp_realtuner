@@ -5,8 +5,42 @@
     <title>Realtuner</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="admin.css" />
+    <link rel="stylesheet" href="hud.css" />
 </head>
 <body>
+    <!-- ========== Cockpit-HUD ========== -->
+    <div id="hud" class="hidden pos-bottom-right">
+        <div class="hud-card">
+            <div class="hud-row">
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">RPM</div>
+                    <div class="hud-bar"><div id="hud-rpm-bar"></div></div>
+                    <div class="hud-val"><span id="hud-rpm">0</span></div>
+                </div>
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">KMH</div>
+                    <div class="hud-val big"><span id="hud-speed">0</span></div>
+                </div>
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">G</div>
+                    <div class="hud-val big"><span id="hud-gear">N</span></div>
+                </div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-stat"><span>TEMP</span><b id="hud-temp">85°</b></div>
+                <div class="hud-stat"><span>OIL</span><b id="hud-oil">100%</b></div>
+                <div class="hud-stat"><span>BOOST</span><b id="hud-boost">0.0</b></div>
+                <div class="hud-stat"><span>BATT</span><b id="hud-batt">100%</b></div>
+                <div class="hud-stat"><span>FUEL</span><b id="hud-fuel">100</b></div>
+            </div>
+            <div class="hud-row toggles">
+                <span class="hud-pill" id="hud-tc">TC</span>
+                <span class="hud-pill" id="hud-abs">ABS</span>
+                <span class="hud-pill" id="hud-flap">FLAP</span>
+                <span class="hud-pill" id="hud-map">MAP: stock</span>
+            </div>
+        </div>
+    </div>
     <!-- ========== Mechaniker-Tablet ========== -->
     <div id="app" class="hidden">
         <div class="tablet">
@@ -95,6 +129,7 @@
                 <button data-atab="logs">Logs</button>
                 <button data-atab="skills">Skills</button>
                 <button data-atab="locations">Locations</button>
+                <button data-atab="tools">Werkzeuge</button>
             </nav>
 
             <main>
@@ -183,6 +218,60 @@
                         </tr></thead><tbody></tbody></table>
                     </div>
                 </section>
+
+                <section id="atab-tools" class="atab">
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Items geben</h3>
+                            <div class="field">
+                                <label>Auswahl</label>
+                                <div class="inline">
+                                    <button id="tool-select-all" class="small">Alle markieren</button>
+                                    <button id="tool-select-none" class="small">Keine</button>
+                                    <input id="tool-filter" placeholder="Filter..." />
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Items</label>
+                                <div id="tool-item-list" class="item-list"></div>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <h3>Empfänger &amp; Menge</h3>
+                            <div class="field">
+                                <label>Ziel</label>
+                                <div class="inline">
+                                    <label><input type="radio" name="tool-target" value="self" checked/> Mich</label>
+                                    <label><input type="radio" name="tool-target" value="id"/> Spieler-ID</label>
+                                    <label><input type="radio" name="tool-target" value="nearest"/> Nächster</label>
+                                    <label><input type="radio" name="tool-target" value="all"/> Alle (!)</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Player-ID (nur bei „Spieler-ID")</label>
+                                <input id="tool-target-id" type="number" placeholder="z.B. 3" />
+                            </div>
+                            <div class="field">
+                                <label>Menge pro Item</label>
+                                <input id="tool-amount" type="number" value="1" min="1" max="1000" />
+                            </div>
+                            <div class="field">
+                                <button id="tool-give-selected" class="primary">Ausgewählte geben</button>
+                                <button id="tool-give-all" class="primary danger">Alles geben (komplett)</button>
+                            </div>
+                            <div class="field">
+                                <label>Ergebnis</label>
+                                <pre id="tool-result" class="log-line"></pre>
+                            </div>
+                            <div class="panel">
+                                <h4>Online Spieler</h4>
+                                <table class="data" id="tool-players"><thead><tr>
+                                    <th>ID</th><th>Name</th><th>Job</th><th>Gruppe</th>
+                                </tr></thead><tbody></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </main>
 
             <footer class="bar">
@@ -193,5 +282,6 @@
 
     <script src="app.js"></script>
     <script src="admin.js"></script>
+    <script src="hud.js"></script>
 </body>
 </html>

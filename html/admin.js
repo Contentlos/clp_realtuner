@@ -31,6 +31,7 @@
         if (name === 'logs')     loadLogs();
         if (name === 'skills')   loadSkills();
         if (name === 'locations') renderLocations();
+        if (name === 'tools')     loadTools();
     }
     tabsBtns.forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.atab)));
     btnClose.addEventListener('click', () => post('admin:close', {}));
@@ -315,6 +316,87 @@
         const radius = prompt('Radius (m):', '3.0');
         const r = await post('admin:addPaintBoothHere', { radius: Number(radius) || 3.0 });
         if (r && r.ok) { await loadSnapshot(); renderLocations(); }
+    });
+
+    // --- Tools: Give-Items ----------------------------------------------------
+    let TOOL_ITEMS = [];
+    async function loadTools() {
+        const r = await post('admin:listResourceItems', {});
+        TOOL_ITEMS = (r && r.items) || [];
+        renderToolItemList(TOOL_ITEMS);
+        const pr = await post('admin:listPlayers', {});
+        renderToolPlayers((pr && pr.players) || []);
+    }
+    function renderToolItemList(items) {
+        const host = document.getElementById('tool-item-list');
+        if (!host) return;
+        host.innerHTML = '';
+        items.forEach((name) => {
+            const lbl = document.createElement('label');
+            lbl.className = 'item-row';
+            lbl.innerHTML = '<input type="checkbox" data-item="' + name + '" /><span>' + name + '</span>';
+            host.appendChild(lbl);
+        });
+    }
+    function renderToolPlayers(list) {
+        const tb = document.querySelector('#tool-players tbody');
+        if (!tb) return;
+        tb.innerHTML = '';
+        list.forEach((p) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + p.id + '</td><td>' + (p.name || '') + '</td>' +
+                           '<td>' + (p.job || '') + '</td><td>' + (p.group || '') + '</td>';
+            tr.addEventListener('click', () => {
+                document.querySelector('input[name="tool-target"][value="id"]').checked = true;
+                document.getElementById('tool-target-id').value = p.id;
+            });
+            tb.appendChild(tr);
+        });
+    }
+    function getSelectedItems() {
+        const nodes = document.querySelectorAll('#tool-item-list input[type="checkbox"]:checked');
+        return Array.from(nodes).map((n) => n.dataset.item);
+    }
+    function getToolTarget() {
+        const kind = (document.querySelector('input[name="tool-target"]:checked') || {}).value || 'self';
+        const id = document.getElementById('tool-target-id').value;
+        return { kind, id: id ? Number(id) : null };
+    }
+    async function giveItems(selection) {
+        const items = selection === 'ALL' ? 'ALL' : getSelectedItems();
+        if (items !== 'ALL' && items.length === 0) {
+            document.getElementById('tool-result').textContent = 'Keine Items gewählt.';
+            return;
+        }
+        const amount = Number(document.getElementById('tool-amount').value) || 1;
+        const t = getToolTarget();
+        let tid = t.id;
+        if (t.kind === 'nearest') {
+            const n = await post('tools:resolveNearest', {});
+            tid = (n && n.serverId) || null;
+        }
+        const r = await post('admin:giveItems', { targetKind: t.kind, targetId: tid, items, amount });
+        const res = (r && r.result) || r || {};
+        const txt = 'Ziele: ' + (res.targets || 0) + ' | Erfolgreich: ' + (res.given || 0) +
+                    (res.failed && res.failed.length ? (' | Fehler: ' + res.failed.join(', ')) : '') +
+                    (res.reason ? (' | ' + res.reason) : '');
+        document.getElementById('tool-result').textContent = txt;
+    }
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'tool-give-selected') giveItems();
+        if (e.target.id === 'tool-give-all')      giveItems('ALL');
+        if (e.target.id === 'tool-select-all') {
+            document.querySelectorAll('#tool-item-list input[type="checkbox"]').forEach(c => c.checked = true);
+        }
+        if (e.target.id === 'tool-select-none') {
+            document.querySelectorAll('#tool-item-list input[type="checkbox"]').forEach(c => c.checked = false);
+        }
+    });
+    document.addEventListener('input', (e) => {
+        if (e.target.id === 'tool-filter') {
+            const q = e.target.value.toLowerCase();
+            renderToolItemList(TOOL_ITEMS.filter((i) => i.toLowerCase().indexOf(q) >= 0));
+        }
     });
 
     // --- Snapshot -------------------------------------------------------------

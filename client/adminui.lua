@@ -120,3 +120,40 @@ RegisterNUICallback('admin:removePaintBooth', function(data, cb)
     local ok = lib.callback.await('clp_realtuner:admin:removePaintBooth', 2000, data.index)
     cb({ ok = ok })
 end)
+
+-- Give-Items ----------------------------------------------------------------
+RegisterNUICallback('admin:listResourceItems', function(_, cb)
+    local items = lib.callback.await('clp_realtuner:admin:listResourceItems', 2000)
+    cb({ items = items or {} })
+end)
+
+RegisterNUICallback('admin:listPlayers', function(_, cb)
+    local players = lib.callback.await('clp_realtuner:admin:listPlayers', 2000)
+    cb({ players = players or {} })
+end)
+
+RegisterNUICallback('admin:giveItems', function(data, cb)
+    local result = lib.callback.await(
+        'clp_realtuner:admin:giveItems', 5000,
+        data.targetKind, data.targetId, data.items, data.amount
+    )
+    cb({ result = result or { ok = false } })
+end)
+
+-- Naechsten Spieler aufloesen (fuer targetKind='nearest')
+RegisterNUICallback('tools:resolveNearest', function(_, cb)
+    local ped = PlayerPedId()
+    local myCoords = GetEntityCoords(ped)
+    local nearestId, nearestDist = nil, math.huge
+    for _, pid in ipairs(GetActivePlayers()) do
+        local other = GetPlayerPed(pid)
+        if other and other ~= ped and DoesEntityExist(other) then
+            local d = #(GetEntityCoords(other) - myCoords)
+            if d < nearestDist then
+                nearestDist = d
+                nearestId = GetPlayerServerId(pid)
+            end
+        end
+    end
+    cb({ serverId = nearestId, distance = nearestDist ~= math.huge and nearestDist or nil })
+end)

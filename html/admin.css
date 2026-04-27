@@ -75,3 +75,38 @@ table.data tr.selected td { background: #1a2430; }
 .pill.q3 { background: #2a4a63; color: #a9d1ee; }
 .pill.q4 { background: #3a5b3f; color: #b9e2c0; }
 .pill.q5 { background: #6a4a22; color: #ffd99a; }
+
+/* Tools-Tab (Give Items) ------------------------------------------------- */
+.item-list {
+    max-height: 380px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    background: #0a0d12;
+}
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+}
+.item-row:hover { background: #14202b; }
+.item-row input[type="checkbox"] { accent-color: var(--accent); }
+.inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+button.small { font-size: 11px; padding: 4px 8px; }
+button.primary.danger { background: #b0262e; }
+.log-line { background: #0a0d12; border: 1px solid var(--border); padding: 8px; border-radius: 6px; white-space: pre-wrap; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.field { margin-bottom: 10px; }
+.field > label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+.field input[type="text"], .field input[type="number"] {
+    background: #0a0d12; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 9px; font-size: 13px; font-family: var(--mono);
+    width: 100%;
+}
+.field .inline label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text); text-transform: none; letter-spacing: 0; }

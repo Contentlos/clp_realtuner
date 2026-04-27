@@ -1,0 +1,75 @@
+/* =============================================================================
+   clp_realtuner - Cockpit-HUD Styles
+============================================================================= */
+
+#hud {
+    position: fixed;
+    z-index: 50;
+    font-family: 'Consolas', 'Menlo', 'Courier New', monospace;
+    color: #e8f1ff;
+    pointer-events: none;
+    user-select: none;
+}
+#hud.hidden { display: none; }
+#hud.pos-bottom-right { right: 22px; bottom: 22px; }
+#hud.pos-bottom-left  { left: 22px;  bottom: 22px; }
+#hud.pos-top-right    { right: 22px; top: 22px; }
+#hud.pos-top-left     { left: 22px;  top: 22px; }
+
+.hud-card {
+    background: rgba(10, 15, 28, 0.82);
+    backdrop-filter: blur(8px);
+    border: 1px solid #1e3b66;
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-width: 280px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+}
+.hud-row { display: flex; gap: 12px; align-items: center; margin: 4px 0; }
+.hud-gauge { flex: 1; text-align: center; }
+.hud-gauge-label {
+    font-size: 10px; letter-spacing: 2px; color: #8da9d1;
+    text-transform: uppercase;
+}
+.hud-bar {
+    height: 6px;
+    background: #122140;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 4px 0;
+}
+.hud-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, #3e8cff 0%, #00ffa3 60%, #ff4d4d 100%);
+    width: 0%;
+    transition: width 120ms linear;
+}
+.hud-val { font-weight: 700; font-size: 16px; }
+.hud-val.big { font-size: 26px; letter-spacing: 1px; }
+
+.hud-stat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.hud-stat > span {
+    font-size: 9px; color: #8da9d1; letter-spacing: 1.5px;
+}
+.hud-stat > b { font-size: 13px; font-weight: 600; }
+.hud-stat.warn > b { color: #ff9b3d; }
+.hud-stat.crit > b { color: #ff3355; }
+
+.hud-pill {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    background: #1a2c4e;
+    color: #9fb9df;
+    letter-spacing: 1px;
+    border: 1px solid #243c64;
+}
+.hud-pill.on  { background: #1a3d2a; color: #76ffb2; border-color: #25633f; }
+.hud-pill.off { background: #3c1a1a; color: #ff9090; border-color: #603030; }
+
+.toggles { gap: 6px; flex-wrap: wrap; }

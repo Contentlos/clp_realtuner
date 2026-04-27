@@ -49,6 +49,7 @@ client_scripts {
     'client/workshop.lua',
     'client/customer_jobs.lua',
     'client/trip.lua',
+    'client/police.lua',
 }
 
 server_scripts {
@@ -66,6 +67,7 @@ server_scripts {
     'server/progression.lua',
     'server/workshop.lua',
     'server/customer_jobs.lua',
+    'server/police.lua',
 }
 
 ui_page 'html/index.html'

@@ -105,4 +105,8 @@ return {
                                 description = 'Offizielles Mechaniker-Gesellen-Zertifikat.' },
     ['cert_meister']        = { label = 'Zertifikat – Meister',      weight = 10, stack = false,
                                 description = 'Offizielles Meister-Zertifikat.' },
+
+    -- Polizei (Batch 10) ---------------------------------------------------
+    ['police_scanner']      = { label = 'Fahrzeug-Scanner (Polizei)', weight = 800, stack = false,
+                                description = 'Liest VIN, TUeV, Halter und erkennt VIN-Mismatch gestohlener Fahrzeuge.' },
 }

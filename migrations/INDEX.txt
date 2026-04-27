@@ -1,0 +1,7 @@
+# clp_realtuner migrations index (lexikalische Reihenfolge, eine pro Zeile)
+migrations/000_base_schema_fix.sql
+migrations/001_fluids_and_wear.sql
+migrations/002_workshops.sql
+migrations/003_progression_racing_police.sql
+migrations/004_portfolio.sql
+migrations/005_police.sql

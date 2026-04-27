@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Realtuner</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="admin.css" />
+    <link rel="stylesheet" href="hud.css" />
+</head>
+<body>
+    <!-- ========== Cockpit-HUD ========== -->
+    <div id="hud" class="hidden pos-bottom-right">
+        <div class="hud-card">
+            <div class="hud-row">
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">RPM</div>
+                    <div class="hud-bar"><div id="hud-rpm-bar"></div></div>
+                    <div class="hud-val"><span id="hud-rpm">0</span></div>
+                </div>
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">KMH</div>
+                    <div class="hud-val big"><span id="hud-speed">0</span></div>
+                </div>
+                <div class="hud-gauge">
+                    <div class="hud-gauge-label">G</div>
+                    <div class="hud-val big"><span id="hud-gear">N</span></div>
+                </div>
+            </div>
+            <div class="hud-row">
+                <div class="hud-stat"><span>TEMP</span><b id="hud-temp">85°</b></div>
+                <div class="hud-stat"><span>OIL</span><b id="hud-oil">100%</b></div>
+                <div class="hud-stat"><span>BOOST</span><b id="hud-boost">0.0</b></div>
+                <div class="hud-stat"><span>BATT</span><b id="hud-batt">100%</b></div>
+                <div class="hud-stat"><span>FUEL</span><b id="hud-fuel">100</b></div>
+            </div>
+            <div class="hud-row toggles">
+                <span class="hud-pill" id="hud-tc">TC</span>
+                <span class="hud-pill" id="hud-abs">ABS</span>
+                <span class="hud-pill" id="hud-flap">FLAP</span>
+                <span class="hud-pill" id="hud-map">MAP: stock</span>
+            </div>
+        </div>
+    </div>
+    <!-- ========== Mechaniker-Tablet ========== -->
+    <div id="app" class="hidden">
+        <div class="tablet">
+            <header class="bar">
+                <div class="brand">
+                    <span class="dot"></span>
+                    <span class="title">REALTUNER OBD-II</span>
+                </div>
+                <div class="meta">
+                    <span id="plate" class="tag">----</span>
+                    <span id="vin"   class="tag mono">VIN ---</span>
+                    <button id="btn-close" class="close">&times;</button>
+                </div>
+            </header>
+
+            <nav class="tabs">
+                <button data-tab="diag"    class="active">Diagnose</button>
+                <button data-tab="scan">Teile & Scan</button>
+                <button data-tab="upgrade">Upgrades</button>
+                <button data-tab="history">Historie</button>
+            </nav>
+
+            <section id="tab-diag" class="tab active">
+                <div class="grid diag-grid" id="diag-grid"></div>
+                <div class="panel">
+                    <h3>Fehlercodes</h3>
+                    <ul id="dtc-list"></ul>
+                </div>
+                <div class="panel">
+                    <h3>Service</h3>
+                    <div id="service-info"></div>
+                </div>
+            </section>
+
+            <section id="tab-scan" class="tab">
+                <div class="panel">
+                    <h3>Installierte Teile</h3>
+                    <table class="data" id="parts-installed"><thead><tr><th>Slot</th><th>Teil</th><th>Zustand</th></tr></thead><tbody></tbody></table>
+                </div>
+                <div class="panel">
+                    <h3>Freie Slots</h3>
+                    <table class="data" id="parts-missing"><thead><tr><th>Slot</th><th>Optionen</th></tr></thead><tbody></tbody></table>
+                </div>
+                <button id="btn-rescan" class="primary">Neu scannen</button>
+            </section>
+
+            <section id="tab-upgrade" class="tab">
+                <div class="panel">
+                    <h3>Verfügbare Upgrades</h3>
+                    <table class="data" id="parts-upgrade"><thead><tr><th>Slot</th><th>Bestes Teil</th><th>Qualität</th></tr></thead><tbody></tbody></table>
+                </div>
+            </section>
+
+            <section id="tab-history" class="tab">
+                <div class="panel">
+                    <h3>Reparatur-Historie</h3>
+                    <table class="data" id="history-table"><thead><tr><th>Zeit</th><th>Aktion</th><th>Mechaniker</th></tr></thead><tbody></tbody></table>
+                </div>
+            </section>
+
+            <footer class="bar">
+                <span id="me"></span>
+                <span id="mode"></span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ========== Admin-Panel ========== -->
+    <div id="admin" class="hidden">
+        <div class="admin-root">
+            <header class="bar">
+                <div class="brand">
+                    <span class="dot danger"></span>
+                    <span class="title">REALTUNER ADMIN</span>
+                </div>
+                <div class="meta">
+                    <span class="tag">LIVE OVERRIDES</span>
+                    <button id="adm-close" class="close">&times;</button>
+                </div>
+            </header>
+
+            <nav class="tabs">
+                <button data-atab="config" class="active">Config</button>
+                <button data-atab="parts">Teile</button>
+                <button data-atab="vehicles">Fahrzeuge</button>
+                <button data-atab="logs">Logs</button>
+                <button data-atab="skills">Skills</button>
+                <button data-atab="locations">Locations</button>
+                <button data-atab="tools">Werkzeuge</button>
+                <button data-atab="profiler">Profiler</button>
+            </nav>
+
+            <main>
+                <section id="atab-config" class="atab active">
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Config-Baum</h3>
+                            <div id="config-tree" class="tree"></div>
+                        </div>
+                        <div class="panel">
+                            <h3>Bearbeiten</h3>
+                            <div id="config-edit" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-parts" class="atab">
+                    <div class="toolbar">
+                        <input id="parts-search" placeholder="Suche item / slot / category..." />
+                        <button id="parts-new" class="primary">Neues Teil</button>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Teile</h3>
+                            <table class="data" id="parts-list"><thead><tr>
+                                <th>Item</th><th>Slot</th><th>Qualität</th><th>Kategorie</th>
+                            </tr></thead><tbody></tbody></table>
+                        </div>
+                        <div class="panel">
+                            <h3>Editor</h3>
+                            <div id="parts-editor" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-vehicles" class="atab">
+                    <div class="toolbar">
+                        <input id="veh-search" placeholder="Platte / VIN / Modell" />
+                        <button id="veh-refresh" class="primary">Suchen</button>
+                    </div>
+                    <div class="two-col">
+                        <div class="panel scroll">
+                            <table class="data" id="veh-list"><thead><tr>
+                                <th>Platte</th><th>VIN</th><th>Modell</th><th>Eng</th><th>Trn</th><th>Brk</th><th>Trb</th><th>Sus</th>
+                            </tr></thead><tbody></tbody></table>
+                        </div>
+                        <div class="panel">
+                            <h3>Fahrzeug-Detail</h3>
+                            <div id="veh-detail" class="editor"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-logs" class="atab">
+                    <div class="toolbar">
+                        <input id="log-plate" placeholder="Plate" />
+                        <input id="log-id"    placeholder="Identifier (license:...)" />
+                        <input id="log-action" placeholder="Action" />
+                        <button id="log-refresh" class="primary">Laden</button>
+                    </div>
+                    <div class="panel scroll">
+                        <table class="data" id="log-list"><thead><tr>
+                            <th>Zeit</th><th>Charakter</th><th>Action</th><th>Plate</th><th>Detail</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+
+                <section id="atab-skills" class="atab">
+                    <div class="toolbar">
+                        <input id="skill-search" placeholder="Identifier..." />
+                        <button id="skill-refresh" class="primary">Laden</button>
+                    </div>
+                    <div class="panel scroll">
+                        <table class="data" id="skill-list"><thead><tr>
+                            <th>Identifier</th><th>Level</th><th>XP</th><th>Repairs</th><th>Installs</th><th>Aktion</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+
+                <section id="atab-locations" class="atab">
+                    <div class="panel">
+                        <h3>Paint Booths</h3>
+                        <button id="booth-here" class="primary">Hier hinzufügen</button>
+                        <table class="data" id="booths-list"><thead><tr>
+                            <th>#</th><th>Koord</th><th>Heading</th><th>Radius</th><th>Aktion</th>
+                        </tr></thead><tbody></tbody></table>
+                    </div>
+                </section>
+
+                <section id="atab-tools" class="atab">
+                    <div class="two-col">
+                        <div class="panel">
+                            <h3>Items geben</h3>
+                            <div class="field">
+                                <label>Auswahl</label>
+                                <div class="inline">
+                                    <button id="tool-select-all" class="small">Alle markieren</button>
+                                    <button id="tool-select-none" class="small">Keine</button>
+                                    <input id="tool-filter" placeholder="Filter..." />
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Items</label>
+                                <div id="tool-item-list" class="item-list"></div>
+                            </div>
+                        </div>
+                        <div class="panel">
+                            <h3>Empfänger &amp; Menge</h3>
+                            <div class="field">
+                                <label>Ziel</label>
+                                <div class="inline">
+                                    <label><input type="radio" name="tool-target" value="self" checked/> Mich</label>
+                                    <label><input type="radio" name="tool-target" value="id"/> Spieler-ID</label>
+                                    <label><input type="radio" name="tool-target" value="nearest"/> Nächster</label>
+                                    <label><input type="radio" name="tool-target" value="all"/> Alle (!)</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Player-ID (nur bei „Spieler-ID")</label>
+                                <input id="tool-target-id" type="number" placeholder="z.B. 3" />
+                            </div>
+                            <div class="field">
+                                <label>Menge pro Item</label>
+                                <input id="tool-amount" type="number" value="1" min="1" max="1000" />
+                            </div>
+                            <div class="field">
+                                <button id="tool-give-selected" class="primary">Ausgewählte geben</button>
+                                <button id="tool-give-all" class="primary danger">Alles geben (komplett)</button>
+                            </div>
+                            <div class="field">
+                                <label>Ergebnis</label>
+                                <pre id="tool-result" class="log-line"></pre>
+                            </div>
+                            <div class="panel">
+                                <h4>Online Spieler</h4>
+                                <table class="data" id="tool-players"><thead><tr>
+                                    <th>ID</th><th>Name</th><th>Job</th><th>Gruppe</th>
+                                </tr></thead><tbody></tbody></table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="atab-profiler" class="atab">
+                    <div class="panel">
+                        <h3>Performance-Profiler</h3>
+                        <div class="inline">
+                            <button id="prof-refresh" class="primary">Aktualisieren</button>
+                            <button id="prof-reset" class="small">Zurücksetzen</button>
+                            <span id="prof-summary" class="tag mono">-</span>
+                        </div>
+                        <table class="data" id="prof-table">
+                            <thead><tr>
+                                <th>System</th><th>Aufrufe</th>
+                                <th>Gesamt (ms)</th><th>Ø (ms)</th>
+                                <th>Max (ms)</th><th>Letzter (ms)</th>
+                            </tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="bar">
+                <span id="adm-footer">Änderungen werden sofort auf alle Clients gesynct und in data/runtime.json persistiert.</span>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ========== Diagnose-Overlays (Batch 2) ========== -->
+    <div id="diag" class="hidden diag-root">
+        <!-- OBD Live -->
+        <section id="diag-obd" class="diag-panel hidden">
+            <header>
+                <h2>OBD-II Live Scanner</h2>
+                <div><span id="obd-plate"></span> · <span id="obd-model"></span></div>
+                <button class="close" data-close="obd">×</button>
+            </header>
+            <div class="obd-grid">
+                <div class="gauge big">
+                    <label>RPM</label><b id="obd-rpm">0</b>
+                    <div class="bar"><div id="obd-rpm-bar"></div></div>
+                </div>
+                <div class="gauge big"><label>KM/H</label><b id="obd-speed">0</b></div>
+                <div class="gauge"><label>Kühlmittel °C</label><b id="obd-ct">85</b></div>
+                <div class="gauge"><label>Öl Qualität</label><b id="obd-oil">100%</b></div>
+                <div class="gauge"><label>Öl km</label><b id="obd-oilkm">0</b></div>
+                <div class="gauge"><label>Batterie</label><b id="obd-batt">100%</b></div>
+                <div class="gauge"><label>Zündkerzen</label><b id="obd-spark">100%</b></div>
+                <div class="gauge"><label>Bremsflüssigk.</label><b id="obd-bf">100%</b></div>
+                <div class="gauge"><label>Kühlmittel</label><b id="obd-coolant">100%</b></div>
+                <div class="gauge"><label>Leck</label><b id="obd-leak">0</b></div>
+                <div class="gauge"><label>Rost</label><b id="obd-rust">0%</b></div>
+                <div class="gauge"><label>Motor HP</label><b id="obd-eng">100%</b></div>
+                <div class="gauge"><label>Getriebe HP</label><b id="obd-tran">100%</b></div>
+                <div class="gauge"><label>Bremse HP</label><b id="obd-brk">100%</b></div>
+                <div class="gauge"><label>Turbo HP</label><b id="obd-tur">100%</b></div>
+                <div class="gauge"><label>Fahrwerk HP</label><b id="obd-sus">100%</b></div>
+                <div class="gauge"><label>TC</label><b id="obd-tc">AN</b></div>
+                <div class="gauge"><label>ABS</label><b id="obd-abs">AN</b></div>
+                <div class="gauge"><label>Auspuffklappe</label><b id="obd-flap">ZU</b></div>
+                <div class="gauge"><label>ECU MAP</label><b id="obd-map">stock</b></div>
+            </div>
+            <div class="obd-codes">
+                <h3>Fehlercodes (DTC)</h3>
+                <ul id="obd-dtc"></ul>
+            </div>
+        </section>
+
+        <!-- Endoskop -->
+        <section id="diag-endo" class="diag-panel hidden">
+            <header>
+                <h2>Endoskop – Motor-Innenraum</h2>
+                <div><span id="endo-plate"></span></div>
+                <button class="close" data-close="endo">×</button>
+            </header>
+            <div class="endo-grid">
+                <div class="endo-stat"><label>Karbon-Ablagerung</label><div class="bar"><div id="endo-carbon"></div></div><b id="endo-carbon-v">0%</b></div>
+                <div class="endo-stat"><label>Ölschlamm</label><div class="bar"><div id="endo-sludge"></div></div><b id="endo-sludge-v">0%</b></div>
+                <div class="endo-stat"><label>Zündkerzen-Verschleiß</label><div class="bar"><div id="endo-spark"></div></div><b id="endo-spark-v">0%</b></div>
+                <div class="endo-stat"><label>Turboschaufeln</label><div class="bar"><div id="endo-turbo"></div></div><b id="endo-turbo-v">0%</b></div>
+                <div class="endo-stat"><label>Kraftstoffspuren</label><div class="bar"><div id="endo-leak"></div></div><b id="endo-leak-v">0%</b></div>
+                <div class="endo-stat"><label>Kühlmittelreste</label><div class="bar"><div id="endo-coolres"></div></div><b id="endo-coolres-v">0%</b></div>
+                <div class="endo-stat"><label>Rost innen</label><div class="bar"><div id="endo-rust"></div></div><b id="endo-rust-v">0%</b></div>
+            </div>
+        </section>
+
+        <!-- Bremsenprüfstand -->
+        <section id="diag-brake" class="diag-panel hidden">
+            <header>
+                <h2>Bremsenprüfstand – Ergebnis</h2>
+                <div><span id="brk-plate"></span></div>
+                <button class="close" data-close="brake">×</button>
+            </header>
+            <div class="brk-grid">
+                <div class="brk-row"><label>Bremskraft Links</label><b id="brk-left">0 kN</b></div>
+                <div class="brk-row"><label>Bremskraft Rechts</label><b id="brk-right">0 kN</b></div>
+                <div class="brk-row"><label>Differenz</label><b id="brk-imb">0%</b></div>
+                <div class="brk-row"><label>Bremsflüssigkeit</label><b id="brk-bf">100%</b></div>
+                <div class="brk-row"><label>Note</label><b id="brk-grade">A</b></div>
+                <div class="brk-row"><label>Legal</label><b id="brk-legal">Ja</b></div>
+            </div>
+        </section>
+
+        <!-- Emissionen -->
+        <section id="diag-emissions" class="diag-panel hidden">
+            <header>
+                <h2>Emissions-Prüfung (TÜV)</h2>
+                <div><span id="em-plate"></span></div>
+                <button class="close" data-close="emissions">×</button>
+            </header>
+            <div class="em-grid">
+                <div class="em-row"><label>CO</label><b id="em-co">0.0%</b></div>
+                <div class="em-row"><label>HC</label><b id="em-hc">0 ppm</b></div>
+                <div class="em-row"><label>NOx</label><b id="em-nox">0 ppm</b></div>
+                <div class="em-row"><label>ECU Map</label><b id="em-map">stock</b></div>
+                <div class="em-row em-result"><label>Ergebnis</label><b id="em-result">—</b></div>
+            </div>
+            <div class="em-failures">
+                <h3>Mängel</h3>
+                <ul id="em-fails"></ul>
+            </div>
+        </section>
+
+        <!-- Dyno-Run -->
+        <section id="diag-dyno" class="diag-panel hidden">
+            <header>
+                <h2>Leistungspruefstand (Dyno)</h2>
+                <div><span id="dyno-plate"></span> · <span id="dyno-model"></span></div>
+                <button class="close" data-close="dyno">×</button>
+            </header>
+            <div class="dyno-hero">
+                <div class="dyno-stat"><label>Peak HP</label><b id="dyno-hp">0</b></div>
+                <div class="dyno-stat"><label>Peak Torque</label><b id="dyno-torque">0 Nm</b></div>
+                <div class="dyno-stat"><label>0–100 km/h</label><b id="dyno-t100">–</b></div>
+                <div class="dyno-stat"><label>0–200 km/h</label><b id="dyno-t200">–</b></div>
+                <div class="dyno-stat"><label>¼ Meile</label><b id="dyno-qm">–</b></div>
+            </div>
+            <canvas id="dyno-chart" width="820" height="280"></canvas>
+        </section>
+
+        <!-- Thermal-View -->
+        <section id="diag-thermal" class="diag-panel hidden">
+            <header>
+                <h2>Thermal-View – Motor Hitzeverteilung</h2>
+                <div><span id="therm-plate"></span></div>
+                <button class="close" data-close="thermal">×</button>
+            </header>
+            <div id="therm-alert" class="hidden therm-alert">KRITISCH – Motor im roten Bereich!</div>
+            <div id="therm-zones" class="therm-zones"></div>
+        </section>
+
+        <!-- Damage 3D (SVG-basiert) -->
+        <section id="diag-damage" class="diag-panel hidden">
+            <header>
+                <h2>Schadensbild – Komponenten</h2>
+                <div><span id="dmg-plate"></span> · <span id="dmg-model"></span></div>
+                <button class="close" data-close="damage">×</button>
+            </header>
+            <div class="dmg-layout">
+                <div class="dmg-svg-wrap">
+                    <svg viewBox="0 0 400 600" class="dmg-svg" id="dmg-svg">
+                        <rect x="80" y="30" width="240" height="540" rx="28" fill="#1a2230" stroke="#2d3a4d"/>
+                        <rect x="100" y="60" width="200" height="120" rx="10" class="dmg-zone" data-comp="windows"/>
+                        <rect x="120" y="200" width="160" height="120" rx="8" class="dmg-zone" data-comp="engine"/>
+                        <rect x="120" y="340" width="160" height="60" rx="8" class="dmg-zone" data-comp="trans"/>
+                        <rect x="130" y="420" width="140" height="50" rx="6" class="dmg-zone" data-comp="body"/>
+                        <rect x="150" y="480" width="100" height="30" rx="4" class="dmg-zone" data-comp="susp"/>
+                        <circle cx="100" cy="210" r="16" class="dmg-zone" data-comp="fl"/>
+                        <circle cx="300" cy="210" r="16" class="dmg-zone" data-comp="fr"/>
+                        <circle cx="100" cy="500" r="16" class="dmg-zone" data-comp="rl"/>
+                        <circle cx="300" cy="500" r="16" class="dmg-zone" data-comp="rr"/>
+                        <rect x="155" y="530" width="90" height="30" rx="4" class="dmg-zone" data-comp="brakes"/>
+                        <rect x="155" y="30" width="90" height="22" rx="4" class="dmg-zone" data-comp="turbo"/>
+                        <rect x="155" y="375" width="90" height="18" rx="3" class="dmg-zone" data-comp="paint"/>
+                    </svg>
+                </div>
+                <div class="dmg-list" id="dmg-list"></div>
+            </div>
+        </section>
+
+        <!-- DTC Deep -->
+        <section id="diag-dtc" class="diag-panel hidden">
+            <header>
+                <h2>DTC Deep-Dive</h2>
+                <div><span id="dtc-plate"></span></div>
+                <button class="close" data-close="dtc">×</button>
+            </header>
+            <ul id="dtc-deep-list" class="dtc-list"></ul>
+        </section>
+    </div>
+
+    <link rel="stylesheet" href="diag.css" />
+    <script src="app.js"></script>
+    <script src="admin.js"></script>
+    <script src="hud.js"></script>
+    <script src="diag.js"></script>
+</body>
+</html>

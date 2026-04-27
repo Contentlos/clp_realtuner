@@ -1,0 +1,112 @@
+#admin.hidden { display: none; }
+#admin {
+    position: fixed; inset: 0;
+    display: grid; place-items: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+}
+.admin-root {
+    width: min(1280px, 96vw);
+    height: min(780px, 92vh);
+    background: linear-gradient(180deg, #0e1218 0%, #090c11 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: 52px 44px 1fr 32px;
+    box-shadow: 0 25px 90px rgba(0,0,0,0.7);
+}
+.dot.danger { background: #ef4e4e; box-shadow: 0 0 10px #ef4e4e; }
+
+main { overflow: auto; padding: 16px; }
+.atab { display: none; }
+.atab.active { display: grid; gap: 14px; grid-template-rows: auto 1fr; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.panel.scroll { max-height: 58vh; overflow: auto; }
+
+.toolbar {
+    display: flex; gap: 8px; align-items: center;
+    padding: 8px 10px; border: 1px solid var(--border);
+    background: #0c1116; border-radius: 10px;
+}
+.toolbar input {
+    flex: 1; min-width: 140px;
+    background: #0a0d12; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 13px;
+}
+
+.tree { font-family: var(--mono); font-size: 12px; max-height: 60vh; overflow: auto; }
+.tree .node {
+    padding: 4px 6px; cursor: pointer; border-radius: 4px;
+    display: flex; justify-content: space-between; gap: 10px;
+}
+.tree .node:hover { background: #1a222d; }
+.tree .node.selected { background: #22313f; color: var(--accent); }
+.tree .key { color: var(--accent-2); }
+.tree .val { color: var(--muted); max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree .group { color: var(--accent); font-weight: 700; }
+
+.editor { display: flex; flex-direction: column; gap: 10px; }
+.editor label { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; font-size: 13px; }
+.editor input[type="text"], .editor input[type="number"], .editor textarea, .editor select {
+    background: #0a0d12; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 13px; font-family: var(--mono);
+}
+.editor textarea { min-height: 120px; resize: vertical; }
+.editor .row { display: flex; gap: 8px; }
+.editor .row button { flex: 1; }
+.editor .toggle { display: flex; gap: 6px; align-items: center; }
+
+button.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; cursor: pointer; }
+button.ghost:hover { background: #1a222d; }
+button.danger { background: #b0262e; color: #fff; border: none; border-radius: 6px; padding: 8px 10px; font-weight: 700; cursor: pointer; }
+
+table.data th { position: sticky; top: 0; background: #0b0f14; z-index: 1; }
+table.data tr { cursor: pointer; }
+table.data tr:hover td { background: #121923; }
+table.data tr.selected td { background: #1a2430; }
+
+.pill { display: inline-block; padding: 2px 6px; border-radius: 8px; font-size: 11px; }
+.pill.q2 { background: #353b49; color: #cdd3dc; }
+.pill.q3 { background: #2a4a63; color: #a9d1ee; }
+.pill.q4 { background: #3a5b3f; color: #b9e2c0; }
+.pill.q5 { background: #6a4a22; color: #ffd99a; }
+
+/* Tools-Tab (Give Items) ------------------------------------------------- */
+.item-list {
+    max-height: 380px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    background: #0a0d12;
+}
+.item-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+}
+.item-row:hover { background: #14202b; }
+.item-row input[type="checkbox"] { accent-color: var(--accent); }
+.inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+button.small { font-size: 11px; padding: 4px 8px; }
+button.primary.danger { background: #b0262e; }
+.log-line { background: #0a0d12; border: 1px solid var(--border); padding: 8px; border-radius: 6px; white-space: pre-wrap; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.field { margin-bottom: 10px; }
+.field > label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+.field input[type="text"], .field input[type="number"] {
+    background: #0a0d12; color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 9px; font-size: 13px; font-family: var(--mono);
+    width: 100%;
+}
+.field .inline label { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text); text-transform: none; letter-spacing: 0; }

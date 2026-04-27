@@ -1,0 +1,135 @@
+/* clp_realtuner - Diagnose-Overlays (Batch 2) */
+.diag-root {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.62);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #d5dce6;
+}
+.diag-root.hidden { display: none; }
+
+.diag-panel {
+    background: #101520;
+    border: 1px solid #263040;
+    border-radius: 12px;
+    width: min(900px, 94vw);
+    max-height: 88vh;
+    overflow: auto;
+    padding: 18px 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.diag-panel.hidden { display: none; }
+
+.diag-panel header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid #263040;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+.diag-panel header h2 { margin: 0; font-size: 18px; color: #8db9ff; letter-spacing: 0.4px; }
+.diag-panel header div { color: #8a93a2; font-size: 12px; flex: 1; }
+.diag-panel header .close {
+    background: #3a1818; color: #f2cfcf; border: 1px solid #683030;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 16px; line-height: 1;
+}
+.diag-panel header .close:hover { background: #602020; }
+
+/* OBD */
+.obd-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.obd-grid .gauge {
+    background: #0a0d14;
+    border: 1px solid #1d2633;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+.obd-grid .gauge.big { grid-column: span 2; }
+.obd-grid .gauge label { display: block; font-size: 10.5px; color: #7e8899; text-transform: uppercase; letter-spacing: 0.5px; }
+.obd-grid .gauge b { font-size: 18px; color: #e6ecf7; font-family: 'Consolas', monospace; }
+.obd-grid .gauge .bar { margin-top: 6px; height: 6px; background: #1a2230; border-radius: 3px; overflow: hidden; }
+.obd-grid .gauge .bar > div { height: 100%; background: linear-gradient(90deg, #4cff9a 0%, #ffd24c 70%, #ff4c4c 100%); width: 0%; transition: width 0.2s linear; }
+
+.obd-codes { margin-top: 14px; }
+.obd-codes h3 { font-size: 13px; color: #8db9ff; margin: 0 0 6px; }
+.obd-codes ul { list-style: none; padding: 0; margin: 0; }
+.obd-codes li { background: #21130c; border-left: 3px solid #ff7a4c; padding: 6px 10px; border-radius: 4px; margin-bottom: 4px; font-family: 'Consolas', monospace; font-size: 12px; }
+.obd-codes li.ok { background: #0e1e14; border-color: #4cff9a; color: #a3e8c2; }
+
+/* Endoskop */
+.endo-grid { display: flex; flex-direction: column; gap: 10px; }
+.endo-stat { display: grid; grid-template-columns: 200px 1fr 60px; gap: 10px; align-items: center; }
+.endo-stat label { font-size: 12px; color: #9aa5b7; }
+.endo-stat .bar { height: 10px; background: #1a2230; border-radius: 5px; overflow: hidden; }
+.endo-stat .bar > div { height: 100%; background: linear-gradient(90deg, #4cff9a 0%, #ffd24c 50%, #ff4c4c 100%); width: 0%; transition: width 0.3s ease; }
+.endo-stat b { text-align: right; font-family: 'Consolas', monospace; color: #e6ecf7; }
+
+/* Brake + Emissions + DTC */
+.brk-grid, .em-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
+}
+.brk-row, .em-row {
+    display: flex; justify-content: space-between;
+    background: #0a0d14; border: 1px solid #1d2633;
+    border-radius: 6px; padding: 8px 12px;
+}
+.brk-row label, .em-row label { color: #8a93a2; font-size: 12px; }
+.brk-row b, .em-row b { font-family: 'Consolas', monospace; color: #e6ecf7; font-size: 14px; }
+.brk-row b.ok, .em-row b.ok, .dtc-list li.ok { color: #4cff9a; }
+.brk-row b.fail, .em-row b.fail { color: #ff6a6a; }
+
+.em-failures { margin-top: 12px; }
+.em-failures h3 { font-size: 13px; color: #ff7a4c; margin: 0 0 6px; }
+.em-failures ul { list-style: none; padding: 0; margin: 0; }
+.em-failures li { background: #21130c; border-left: 3px solid #ff7a4c; padding: 6px 10px; border-radius: 4px; margin-bottom: 4px; font-size: 12px; }
+.em-failures li.ok { background: #0e1e14; border-color: #4cff9a; color: #a3e8c2; }
+.em-row.em-result { grid-column: span 2; }
+
+.dtc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.dtc-list li { background: #0e1320; border: 1px solid #223049; border-radius: 6px; padding: 8px 12px; }
+.dtc-list li.sev-1 { border-left: 4px solid #ffd24c; }
+.dtc-list li.sev-2 { border-left: 4px solid #ff954c; }
+.dtc-list li.sev-3 { border-left: 4px solid #ff4c4c; }
+.dtc-list .dtc-head { color: #e6ecf7; font-family: 'Consolas', monospace; margin-bottom: 4px; }
+.dtc-list .dtc-body { font-size: 12px; color: #b1bacb; }
+.dtc-list .dtc-body i { color: #7e8899; font-style: normal; margin-right: 4px; }
+
+/* Dyno */
+.dyno-hero { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 12px; }
+.dyno-stat { background: #0a0d14; border: 1px solid #1d2633; border-radius: 8px; padding: 10px; text-align: center; }
+.dyno-stat label { display: block; font-size: 10.5px; color: #7e8899; text-transform: uppercase; margin-bottom: 4px; }
+.dyno-stat b { font-size: 20px; color: #4cff9a; font-family: 'Consolas', monospace; }
+canvas#dyno-chart { width: 100%; height: 280px; background: #0a0d14; border: 1px solid #1d2633; border-radius: 8px; }
+
+/* Thermal */
+.therm-alert { background: #4a1414; color: #ffcaca; border-left: 4px solid #ff4c4c; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-weight: 700; letter-spacing: 0.5px; }
+.therm-alert.hidden { display: none; }
+.therm-zones { display: flex; flex-direction: column; gap: 8px; }
+.therm-zone { display: grid; grid-template-columns: 180px 1fr 80px; gap: 10px; align-items: center; }
+.therm-zone label { font-size: 12px; color: #9aa5b7; }
+.therm-zone .therm-bar { height: 10px; background: #1a2230; border-radius: 5px; overflow: hidden; }
+.therm-zone .therm-bar > div { height: 100%; transition: width 0.3s ease; }
+.therm-zone b { text-align: right; font-family: 'Consolas', monospace; color: #e6ecf7; }
+
+/* Damage */
+.dmg-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+.dmg-svg-wrap { background: #0a0d14; border: 1px solid #1d2633; border-radius: 8px; padding: 10px; }
+.dmg-svg { width: 100%; height: auto; }
+.dmg-zone { stroke: #2d3a4d; stroke-width: 1.5; cursor: pointer; transition: all 0.2s ease; }
+.dmg-zone:hover { stroke: #8db9ff; stroke-width: 3; }
+.dmg-list { display: flex; flex-direction: column; gap: 6px; }
+.dmg-row { display: grid; grid-template-columns: 110px 1fr 50px; gap: 10px; align-items: center; background: #0a0d14; padding: 6px 10px; border-radius: 6px; }
+.dmg-row label { font-size: 12px; color: #9aa5b7; }
+.dmg-row .bar { height: 8px; background: #1a2230; border-radius: 4px; overflow: hidden; }
+.dmg-row .bar > div { height: 100%; transition: width 0.3s ease; }
+.dmg-row b { text-align: right; font-family: 'Consolas', monospace; color: #e6ecf7; }

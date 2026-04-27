@@ -1,0 +1,38 @@
+name: lint
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lua-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install lua5.4
+        run: sudo apt-get update && sudo apt-get install -y lua5.4
+      - name: luac syntax check
+        run: |
+          set -e
+          FAIL=0
+          while IFS= read -r f; do
+            if ! luac5.4 -p "$f"; then
+              echo "SYNTAX ERROR in $f"
+              FAIL=1
+            fi
+          done < <(find client server shared bridges config -type f -name '*.lua')
+          exit $FAIL
+
+  js-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --check html/app.js
+      - run: node --check html/admin.js
+      - run: node --check html/hud.js
+      - run: node --check html/diag.js
+      - run: npx --yes eslint@8.57.0 "html/**/*.js" --max-warnings=100

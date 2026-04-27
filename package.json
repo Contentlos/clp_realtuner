@@ -1,0 +1,14 @@
+{
+  "name": "clp_realtuner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hardcore tuning/mechaniker system for ESX Legacy (FiveM). Node tooling is only used for NUI linting and is not required at runtime.",
+  "scripts": {
+    "lint": "eslint \"html/**/*.js\"",
+    "lint:fix": "eslint \"html/**/*.js\" --fix",
+    "check": "node --check html/app.js && node --check html/admin.js && node --check html/hud.js && node --check html/diag.js"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  }
+}

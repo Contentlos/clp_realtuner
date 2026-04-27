@@ -100,15 +100,25 @@ lib.callback.register('clp_realtuner:workshop:buy', function(source, id)
     if xPlayer.getMoney() < cost and xPlayer.getAccount('bank').money < cost then
         return false, 'Nicht genuegend Geld (' .. cost .. ')'
     end
+    -- Atomarer Claim: UPDATE ... WHERE owner IS NULL OR owner = '' -> genau ein Gewinner.
+    -- Geld wird erst abgebucht, wenn der Claim wirklich durchgegangen ist (TOCTOU-safe).
+    local ident = getIdent(xPlayer)
+    local affected
+    local ok = pcall(function()
+        affected = MySQL.update.await([[
+            UPDATE mechanic_workshops
+               SET owner = ?, updated_at = ?
+             WHERE id = ? AND (owner IS NULL OR owner = '')
+        ]], { ident, os.time(), id })
+    end)
+    if not ok or (tonumber(affected) or 0) < 1 then
+        return false, 'Werkstatt wurde gerade von jemand anderem gekauft.'
+    end
     if xPlayer.getAccount('bank').money >= cost then
         xPlayer.removeAccountMoney('bank', cost)
     else
         xPlayer.removeMoney(cost)
     end
-    pcall(function()
-        MySQL.update.await('UPDATE mechanic_workshops SET owner = ?, updated_at = ? WHERE id = ?',
-            { getIdent(xPlayer), os.time(), id })
-    end)
     HCM.server.log(xPlayer, 'workshop:buy', nil, nil, { id = id, cost = cost })
     return true, 'Werkstatt gekauft fuer $' .. cost
 end)

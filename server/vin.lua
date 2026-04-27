@@ -137,6 +137,7 @@ function HCM.server.loadRecord(plate, model)
             tint                = tonumber(row.tint)             or 0.0,
             wrap                = jsonDecode(row.wrap),
             interior_mods       = jsonDecode(row.interior_mods),
+            etched_vin          = row.etched_vin,
         }
     else
         rec = deepCopy(DEFAULT_RECORD)

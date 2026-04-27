@@ -53,6 +53,7 @@ client_scripts {
     'client/insurance.lua',
     'bridges/fuel.lua',
     'bridges/lbphone.lua',
+    'client/admin_liveview.lua',
 }
 
 server_scripts {
@@ -72,6 +73,7 @@ server_scripts {
     'server/customer_jobs.lua',
     'server/police.lua',
     'server/insurance.lua',
+    'server/admin_liveview.lua',
 }
 
 ui_page 'html/index.html'

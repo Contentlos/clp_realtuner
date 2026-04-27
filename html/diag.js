@@ -9,6 +9,9 @@
         brake: document.getElementById('diag-brake'),
         emissions: document.getElementById('diag-emissions'),
         dtc: document.getElementById('diag-dtc'),
+        dyno: document.getElementById('diag-dyno'),
+        thermal: document.getElementById('diag-thermal'),
+        damage: document.getElementById('diag-damage'),
     };
 
     function setId(id, val) {
@@ -58,6 +61,9 @@
             else if (which === 'brake') post('diag:brakeStandClose', {});
             else if (which === 'emissions') post('diag:emissionsClose', {});
             else if (which === 'dtc') post('diag:dtcDeepClose', {});
+            else if (which === 'dyno') post('dyno:close', {});
+            else if (which === 'thermal') post('thermal:close', {});
+            else if (which === 'damage') post('damage3d:close', {});
         }
     });
 
@@ -70,7 +76,116 @@
         else if (!panels.brake.classList.contains('hidden')) { hideAll(); post('diag:brakeStandClose', {}); }
         else if (!panels.emissions.classList.contains('hidden')) { hideAll(); post('diag:emissionsClose', {}); }
         else if (!panels.dtc.classList.contains('hidden')) { hideAll(); post('diag:dtcDeepClose', {}); }
+        else if (panels.dyno && !panels.dyno.classList.contains('hidden')) { hideAll(); post('dyno:close', {}); }
+        else if (panels.thermal && !panels.thermal.classList.contains('hidden')) { hideAll(); post('thermal:close', {}); }
+        else if (panels.damage && !panels.damage.classList.contains('hidden')) { hideAll(); post('damage3d:close', {}); }
     });
+
+    // Dyno Rendering
+    function renderDyno(d) {
+        setId('dyno-plate', d.plate || '—');
+        setId('dyno-model', d.model || '—');
+        setId('dyno-hp', Math.round(d.peakHP || 0));
+        setId('dyno-torque', Math.round(d.peakTorque || 0) + ' Nm');
+        setId('dyno-t100', d.t0to100 > 0 ? d.t0to100.toFixed(2) + ' s' : '–');
+        setId('dyno-t200', d.t0to200 > 0 ? d.t0to200.toFixed(2) + ' s' : '–');
+        const qm = d.quarterMile || {};
+        setId('dyno-qm', qm.time > 0 ? qm.time.toFixed(2) + ' s (' + qm.dist + 'm)' : '–');
+
+        const canvas = document.getElementById('dyno-chart');
+        if (!canvas || !canvas.getContext) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        // grid
+        ctx.strokeStyle = '#1d2633';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= w; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+        for (let y = 0; y <= h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+        // axes
+        ctx.strokeStyle = '#495266'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(40, h - 30); ctx.lineTo(w - 20, h - 30); ctx.stroke();
+        const rpm = d.rpmCurve || [], hp = d.hpCurve || [];
+        if (rpm.length === 0) return;
+        const rpmMax = Math.max.apply(null, rpm) || 8000;
+        const hpMax = Math.max.apply(null, hp.concat([100])) * 1.1;
+        // HP line
+        ctx.strokeStyle = '#4cff9a'; ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let i = 0; i < rpm.length; i++) {
+            const x = 40 + (rpm[i] / rpmMax) * (w - 60);
+            const y = (h - 30) - (hp[i] / hpMax) * (h - 50);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        // labels
+        ctx.fillStyle = '#8db9ff'; ctx.font = '11px Consolas, monospace';
+        ctx.fillText('HP', 8, 16);
+        ctx.fillText('RPM →', w - 55, h - 10);
+        ctx.fillStyle = '#7e8899';
+        for (let i = 0; i <= 4; i++) {
+            const r = Math.round((rpmMax / 4) * i);
+            ctx.fillText(r, 40 + (i / 4) * (w - 60) - 10, h - 14);
+            const p = Math.round((hpMax / 4) * i);
+            ctx.fillText(p, 6, (h - 30) - (i / 4) * (h - 50) + 4);
+        }
+    }
+
+    // Thermal
+    function renderThermal(d) {
+        setId('therm-plate', d.plate || '—');
+        const alert = document.getElementById('therm-alert');
+        if (alert) alert.classList.toggle('hidden', !d.critical);
+        const host = document.getElementById('therm-zones');
+        if (!host) return;
+        host.innerHTML = '';
+        (d.zones || []).forEach(z => {
+            const row = document.createElement('div');
+            row.className = 'therm-zone';
+            const pct = Math.max(0, Math.min(100, (z.temp - 20) / 2.8));
+            const col = thermalColor(z.temp);
+            row.innerHTML = '<label>' + z.label + '</label>' +
+                '<div class="therm-bar"><div style="width:' + pct + '%;background:' + col + ';"></div></div>' +
+                '<b>' + z.temp + '°C</b>';
+            host.appendChild(row);
+        });
+    }
+    function thermalColor(t) {
+        if (t < 70) return '#3a9dff';
+        if (t < 95) return '#4cff9a';
+        if (t < 110) return '#ffd24c';
+        if (t < 130) return '#ff954c';
+        return '#ff4c4c';
+    }
+
+    // Damage 3D
+    function renderDamage(d) {
+        setId('dmg-plate', d.plate || '—');
+        setId('dmg-model', d.model || '—');
+        const list = document.getElementById('dmg-list');
+        list.innerHTML = '';
+        (d.components || []).forEach(c => {
+            const hp = Math.max(0, Math.min(100, c.hp));
+            const zone = document.querySelector('#dmg-svg [data-comp="' + c.id + '"]');
+            if (zone) {
+                zone.setAttribute('fill', dmgColor(hp));
+                zone.setAttribute('data-label', c.label + ' ' + Math.round(hp) + '%');
+            }
+            const row = document.createElement('div');
+            row.className = 'dmg-row';
+            row.innerHTML = '<label>' + c.label + '</label>' +
+                '<div class="bar"><div style="width:' + hp + '%;background:' + dmgColor(hp) + ';"></div></div>' +
+                '<b>' + Math.round(hp) + '%</b>';
+            list.appendChild(row);
+        });
+    }
+    function dmgColor(hp) {
+        if (hp > 85) return '#4cff9a';
+        if (hp > 60) return '#8fce5b';
+        if (hp > 35) return '#ffd24c';
+        if (hp > 15) return '#ff954c';
+        return '#ff4c4c';
+    }
 
     function renderObdUpdate(d) {
         setId('obd-rpm', d.rpm);
@@ -223,6 +338,19 @@
         } else if (m.action === 'diag:dtcDeep') {
             renderDtcDeep(d);
             show('dtc');
+        } else if (m.action === 'dyno:start') {
+            setId('dyno-plate', d.plate || '—');
+            setId('dyno-model', '');
+            show('dyno');
+        } else if (m.action === 'dyno:result') {
+            renderDyno(d);
+            show('dyno');
+        } else if (m.action === 'thermal:open') {
+            renderThermal(d);
+            show('thermal');
+        } else if (m.action === 'damage3d:open') {
+            renderDamage(d);
+            show('damage');
         }
     });
 })();

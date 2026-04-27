@@ -375,6 +375,63 @@
             </div>
         </section>
 
+        <!-- Dyno-Run -->
+        <section id="diag-dyno" class="diag-panel hidden">
+            <header>
+                <h2>Leistungspruefstand (Dyno)</h2>
+                <div><span id="dyno-plate"></span> · <span id="dyno-model"></span></div>
+                <button class="close" data-close="dyno">×</button>
+            </header>
+            <div class="dyno-hero">
+                <div class="dyno-stat"><label>Peak HP</label><b id="dyno-hp">0</b></div>
+                <div class="dyno-stat"><label>Peak Torque</label><b id="dyno-torque">0 Nm</b></div>
+                <div class="dyno-stat"><label>0–100 km/h</label><b id="dyno-t100">–</b></div>
+                <div class="dyno-stat"><label>0–200 km/h</label><b id="dyno-t200">–</b></div>
+                <div class="dyno-stat"><label>¼ Meile</label><b id="dyno-qm">–</b></div>
+            </div>
+            <canvas id="dyno-chart" width="820" height="280"></canvas>
+        </section>
+
+        <!-- Thermal-View -->
+        <section id="diag-thermal" class="diag-panel hidden">
+            <header>
+                <h2>Thermal-View – Motor Hitzeverteilung</h2>
+                <div><span id="therm-plate"></span></div>
+                <button class="close" data-close="thermal">×</button>
+            </header>
+            <div id="therm-alert" class="hidden therm-alert">KRITISCH – Motor im roten Bereich!</div>
+            <div id="therm-zones" class="therm-zones"></div>
+        </section>
+
+        <!-- Damage 3D (SVG-basiert) -->
+        <section id="diag-damage" class="diag-panel hidden">
+            <header>
+                <h2>Schadensbild – Komponenten</h2>
+                <div><span id="dmg-plate"></span> · <span id="dmg-model"></span></div>
+                <button class="close" data-close="damage">×</button>
+            </header>
+            <div class="dmg-layout">
+                <div class="dmg-svg-wrap">
+                    <svg viewBox="0 0 400 600" class="dmg-svg" id="dmg-svg">
+                        <rect x="80" y="30" width="240" height="540" rx="28" fill="#1a2230" stroke="#2d3a4d"/>
+                        <rect x="100" y="60" width="200" height="120" rx="10" class="dmg-zone" data-comp="windows"/>
+                        <rect x="120" y="200" width="160" height="120" rx="8" class="dmg-zone" data-comp="engine"/>
+                        <rect x="120" y="340" width="160" height="60" rx="8" class="dmg-zone" data-comp="trans"/>
+                        <rect x="130" y="420" width="140" height="50" rx="6" class="dmg-zone" data-comp="body"/>
+                        <rect x="150" y="480" width="100" height="30" rx="4" class="dmg-zone" data-comp="susp"/>
+                        <circle cx="100" cy="210" r="16" class="dmg-zone" data-comp="fl"/>
+                        <circle cx="300" cy="210" r="16" class="dmg-zone" data-comp="fr"/>
+                        <circle cx="100" cy="500" r="16" class="dmg-zone" data-comp="rl"/>
+                        <circle cx="300" cy="500" r="16" class="dmg-zone" data-comp="rr"/>
+                        <rect x="155" y="530" width="90" height="30" rx="4" class="dmg-zone" data-comp="brakes"/>
+                        <rect x="155" y="30" width="90" height="22" rx="4" class="dmg-zone" data-comp="turbo"/>
+                        <rect x="155" y="375" width="90" height="18" rx="3" class="dmg-zone" data-comp="paint"/>
+                    </svg>
+                </div>
+                <div class="dmg-list" id="dmg-list"></div>
+            </div>
+        </section>
+
         <!-- DTC Deep -->
         <section id="diag-dtc" class="diag-panel hidden">
             <header>

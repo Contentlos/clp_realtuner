@@ -42,6 +42,8 @@ client_scripts {
     'client/audio.lua',
     'client/hud.lua',
     'client/diag_tools.lua',
+    'client/dyno.lua',
+    'client/visuals.lua',
 }
 
 server_scripts {
@@ -55,6 +57,7 @@ server_scripts {
     'server/admin.lua',
     'server/adminapi.lua',
     'server/diagnostics.lua',
+    'server/dyno.lua',
 }
 
 ui_page 'html/index.html'

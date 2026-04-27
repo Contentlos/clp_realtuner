@@ -409,6 +409,33 @@ CreateThread(function()
                 return HCM_C.inWorkshopZone and HCM_C.inWorkshopZone() or Config.Debug
             end,
         },
+        {
+            name = 'clp_realtuner_thermal',
+            label = 'Thermal-View anzeigen',
+            icon = 'fa-solid fa-fire-flame-simple',
+            distance = 2.5,
+            items = { 'obd_scanner' },
+            onSelect = function(data) HCM_C.openThermal(data.entity) end,
+        },
+        {
+            name = 'clp_realtuner_damage3d',
+            label = 'Schadensbild (3D)',
+            icon = 'fa-solid fa-car-burst',
+            distance = 3.0,
+            onSelect = function(data) HCM_C.openDamage3D(data.entity) end,
+        },
+        {
+            name = 'clp_realtuner_dyno',
+            label = 'Dyno-Run starten',
+            icon = 'fa-solid fa-chart-line',
+            distance = 3.0,
+            onSelect = function() HCM_C.runDyno(250) end,
+            canInteract = function()
+                local ped = PlayerPedId()
+                return GetVehiclePedIsIn(ped, false) ~= 0 and
+                    (HCM_C.inWorkshopZone and HCM_C.inWorkshopZone() or Config.Debug)
+            end,
+        },
     })
 end)
 

@@ -287,3 +287,15 @@ lib.callback.register('clp_realtuner:admin:giveItems', function(source, targetKi
     })
     return { ok = true, given = given, failed = failed, targets = #targets }
 end)
+
+-- Performance-Profiler ------------------------------------------------------
+lib.callback.register('clp_realtuner:admin:profiler', function(source, doReset)
+    local ok = guard(source)
+    if not ok then return nil end
+    if doReset then HCM.profiler.reset() end
+    return {
+        memoryKb = collectgarbage('count'),
+        uptime   = math.floor((GetGameTimer() or 0) / 1000),
+        entries  = HCM.profiler.snapshot(),
+    }
+end)

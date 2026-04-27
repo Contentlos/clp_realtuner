@@ -32,6 +32,7 @@
         if (name === 'skills')   loadSkills();
         if (name === 'locations') renderLocations();
         if (name === 'tools')     loadTools();
+        if (name === 'profiler')  loadProfiler();
     }
     tabsBtns.forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.atab)));
     btnClose.addEventListener('click', () => post('admin:close', {}));
@@ -407,6 +408,36 @@
         renderPartsList();
         renderLocations();
     }
+
+    // --- Profiler (Batch 13) --------------------------------------------------
+    async function loadProfiler(reset) {
+        const res = await post('admin:profiler', { reset: !!reset });
+        const data = (res && res.data) || {};
+        const tbody = document.querySelector('#prof-table tbody');
+        const summary = document.getElementById('prof-summary');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        const entries = data.entries || [];
+        if (entries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="muted">Noch keine Messungen aufgezeichnet.</td></tr>';
+        } else {
+            for (const e of entries) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${e.name}</td><td>${e.count}</td>` +
+                    `<td>${e.totalMs.toFixed(2)}</td><td>${e.avgMs.toFixed(2)}</td>` +
+                    `<td>${e.maxMs.toFixed(2)}</td><td>${e.lastMs.toFixed(2)}</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+        if (summary) {
+            const mem = data.memoryKb ? (data.memoryKb / 1024).toFixed(2) + ' MB' : 'n/a';
+            summary.textContent = `Lua-Heap: ${mem} · Uptime: ${data.uptime || 0}s`;
+        }
+    }
+    const profRefresh = document.getElementById('prof-refresh');
+    if (profRefresh) profRefresh.addEventListener('click', () => loadProfiler(false));
+    const profReset = document.getElementById('prof-reset');
+    if (profReset) profReset.addEventListener('click', () => loadProfiler(true));
 
     // --- Message handler ------------------------------------------------------
     window.addEventListener('message', (event) => {

@@ -7,6 +7,7 @@ HCM.server = HCM.server or {}
 
 local cache = {}     -- plate -> record
 local dirty = {}     -- plate -> true
+local dirtyFields = {} -- plate -> { field = true, ... } (Delta-Packing fuer Save)
 local loading = {}   -- plate -> promise
 
 local DEFAULT_RECORD = {
@@ -78,6 +79,7 @@ function HCM.server.loadRecord(plate, model)
         return cache[plate]
     end
     loading[plate] = true
+    local _pt = HCM.profiler and HCM.profiler.start('vin.loadRecord') or nil
 
     -- Migrationen muessen durch sein, sonst koennte die INSERT-Liste eine
     -- noch nicht existierende Spalte (z.B. vin) referenzieren und werfen.
@@ -161,6 +163,7 @@ function HCM.server.loadRecord(plate, model)
 
     cache[plate] = rec
     loading[plate] = nil
+    if _pt and HCM.profiler then HCM.profiler.stop('vin.loadRecord', _pt) end
     return rec
 end
 
@@ -169,8 +172,16 @@ function HCM.server.getRecord(plate)
     return cache[plate]
 end
 
-function HCM.server.markDirty(plate)
-    dirty[normalize(plate)] = true
+function HCM.server.markDirty(plate, ...)
+    plate = normalize(plate)
+    dirty[plate] = true
+    local fields = select('#', ...) > 0 and { ... } or nil
+    if fields then
+        dirtyFields[plate] = dirtyFields[plate] or {}
+        for _, f in ipairs(fields) do dirtyFields[plate][f] = true end
+    else
+        dirtyFields[plate] = nil -- voller Save
+    end
 end
 
 ---@param rec table
@@ -178,7 +189,17 @@ function HCM.server.applyPatch(plate, patch)
     plate = normalize(plate)
     local rec = cache[plate]
     if not rec then return nil end
-    for k, v in pairs(patch or {}) do rec[k] = v end
+    dirtyFields[plate] = dirtyFields[plate] or {}
+    local hadFieldDelta = next(dirtyFields[plate]) ~= nil
+    for k, v in pairs(patch or {}) do
+        if rec[k] ~= v then
+            rec[k] = v
+            dirtyFields[plate][k] = true
+        end
+    end
+    if not hadFieldDelta and not next(dirtyFields[plate]) then
+        dirtyFields[plate] = nil
+    end
     dirty[plate] = true
     return rec
 end
@@ -186,25 +207,76 @@ end
 ---@param plate string
 local function boolToInt(v) return v and 1 or 0 end
 
+-- JSON-Felder muessen beim Delta-Save durch jsonEncode, Booleans durch boolToInt.
+local FIELD_ENCODERS = {
+    ecu_state = jsonEncode, installed_parts = jsonEncode, tuning_data = jsonEncode,
+    neon = jsonEncode, wrap = jsonEncode, interior_mods = jsonEncode,
+    windshield_broken = boolToInt, tc_enabled = boolToInt,
+    abs_enabled = boolToInt, exhaust_flap = boolToInt,
+}
+local DELTA_ALLOWED = {
+    engine_health=true, transmission_health=true, brake_health=true, turbo_health=true,
+    suspension_health=true, ecu_state=true, installed_parts=true, tuning_data=true,
+    last_service=true, odometer=true, paint_quality=true, model=true,
+    oil_km=true, oil_quality=true, fuel_leak=true, spark_plug=true, battery=true,
+    battery_last_ts=true, headlight_state=true, rearlight_state=true, brake_fluid=true,
+    coolant=true, coolant_temp=true, rust=true, windshield_broken=true,
+    tc_enabled=true, abs_enabled=true, exhaust_flap=true, ecu_map=true,
+    tuev_expires=true, neon=true, tint=true, wrap=true, interior_mods=true,
+    etched_vin=true,
+}
+
+local function encodeValue(field, value)
+    local enc = FIELD_ENCODERS[field]
+    if enc then return enc(value) end
+    return value
+end
+
 function HCM.server.save(plate)
     plate = normalize(plate)
     local rec = cache[plate]
     if not rec then return end
-    -- zuerst die Kern-Felder (immer vorhanden)
-    MySQL.update.await([[
-        UPDATE vehicles_data
-        SET engine_health=?, transmission_health=?, brake_health=?, turbo_health=?,
-            suspension_health=?, ecu_state=?, installed_parts=?, tuning_data=?,
-            last_service=?, odometer=?, paint_quality=?, model=COALESCE(?, model)
-        WHERE plate=?
-    ]], {
-        rec.engine_health, rec.transmission_health, rec.brake_health, rec.turbo_health,
-        rec.suspension_health, jsonEncode(rec.ecu_state), jsonEncode(rec.installed_parts),
-        jsonEncode(rec.tuning_data), rec.last_service, rec.odometer, rec.paint_quality,
-        rec.model, plate,
-    })
-    -- Migration 001 Felder - pcall, damit das Speichern auch ohne gelaufene
-    -- Migration nicht den kompletten Save-Flow kaputtmacht
+    local _pt = HCM.profiler and HCM.profiler.start('vin.save') or nil
+    local fieldDelta = dirtyFields[plate]
+
+    if fieldDelta and next(fieldDelta) then
+        -- Delta-Packing: nur tatsaechlich geaenderte Spalten schreiben.
+        local setParts, args = {}, {}
+        for field in pairs(fieldDelta) do
+            if DELTA_ALLOWED[field] then
+                setParts[#setParts+1] = ('`%s`=?'):format(field)
+                args[#args+1] = encodeValue(field, rec[field])
+            end
+        end
+        if #setParts > 0 then
+            args[#args+1] = plate
+            local sql = 'UPDATE vehicles_data SET ' .. table.concat(setParts, ', ') .. ' WHERE plate=?'
+            local ok = pcall(function() MySQL.update.await(sql, args) end)
+            if ok then
+                dirty[plate] = nil
+                dirtyFields[plate] = nil
+                if _pt and HCM.profiler then HCM.profiler.stop('vin.save.delta', _pt) end
+                return
+            end
+            -- bei Fehler (z.B. Spalte durch Migration noch nicht da) auf Full-Save zurueckfallen
+        end
+    end
+
+    -- Full-Save Fallback / initialer Save ---------------------------------
+    pcall(function()
+        MySQL.update.await([[
+            UPDATE vehicles_data
+            SET engine_health=?, transmission_health=?, brake_health=?, turbo_health=?,
+                suspension_health=?, ecu_state=?, installed_parts=?, tuning_data=?,
+                last_service=?, odometer=?, paint_quality=?, model=COALESCE(?, model)
+            WHERE plate=?
+        ]], {
+            rec.engine_health, rec.transmission_health, rec.brake_health, rec.turbo_health,
+            rec.suspension_health, jsonEncode(rec.ecu_state), jsonEncode(rec.installed_parts),
+            jsonEncode(rec.tuning_data), rec.last_service, rec.odometer, rec.paint_quality,
+            rec.model, plate,
+        })
+    end)
     pcall(function()
         MySQL.update.await([[
             UPDATE vehicles_data SET
@@ -229,6 +301,8 @@ function HCM.server.save(plate)
         })
     end)
     dirty[plate] = nil
+    dirtyFields[plate] = nil
+    if _pt and HCM.profiler then HCM.profiler.stop('vin.save.full', _pt) end
 end
 
 function HCM.server.saveAllDirty()

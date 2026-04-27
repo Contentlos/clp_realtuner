@@ -140,6 +140,35 @@
 
     tabsBtns.forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
+    // --- Dark/Light-Mode (Batch 13) -------------------------------------
+    const THEME_KEY = 'clp_realtuner_theme';
+    function applyTheme(theme) {
+        const t = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem(THEME_KEY, t); } catch (_) { /* NUI kann LS blocken */ }
+        document.querySelectorAll('.theme-toggle').forEach((btn) => {
+            btn.textContent = t === 'light' ? 'Dark-Mode' : 'Light-Mode';
+            btn.setAttribute('aria-pressed', t === 'light' ? 'true' : 'false');
+        });
+    }
+    (function mountThemeToggle() {
+        let saved = 'dark';
+        try { saved = localStorage.getItem(THEME_KEY) || 'dark'; } catch (_) {}
+        applyTheme(saved);
+        const meta = document.querySelector('#app .bar .meta');
+        if (meta && !meta.querySelector('.theme-toggle')) {
+            const btn = document.createElement('button');
+            btn.className = 'theme-toggle';
+            btn.type = 'button';
+            btn.textContent = saved === 'light' ? 'Dark-Mode' : 'Light-Mode';
+            btn.addEventListener('click', () => {
+                const next = (document.documentElement.getAttribute('data-theme') === 'light') ? 'dark' : 'light';
+                applyTheme(next);
+            });
+            meta.insertBefore(btn, meta.firstChild);
+        }
+    })();
+
     btnClose.addEventListener('click', () => post('close', {}));
     btnRescan.addEventListener('click', async () => {
         const r = await post('scan', {});

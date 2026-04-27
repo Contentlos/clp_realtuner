@@ -140,6 +140,11 @@ RegisterNUICallback('admin:giveItems', function(data, cb)
     cb({ result = result or { ok = false } })
 end)
 
+RegisterNUICallback('admin:profiler', function(data, cb)
+    local result = lib.callback.await('clp_realtuner:admin:profiler', 5000, data and data.reset or false)
+    cb({ data = result or {} })
+end)
+
 -- Naechsten Spieler aufloesen (fuer targetKind='nearest')
 RegisterNUICallback('tools:resolveNearest', function(_, cb)
     local ped = PlayerPedId()

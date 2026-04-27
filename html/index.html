@@ -130,6 +130,7 @@
                 <button data-atab="skills">Skills</button>
                 <button data-atab="locations">Locations</button>
                 <button data-atab="tools">Werkzeuge</button>
+                <button data-atab="profiler">Profiler</button>
             </nav>
 
             <main>
@@ -270,6 +271,25 @@
                                 </tr></thead><tbody></tbody></table>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <section id="atab-profiler" class="atab">
+                    <div class="panel">
+                        <h3>Performance-Profiler</h3>
+                        <div class="inline">
+                            <button id="prof-refresh" class="primary">Aktualisieren</button>
+                            <button id="prof-reset" class="small">Zurücksetzen</button>
+                            <span id="prof-summary" class="tag mono">-</span>
+                        </div>
+                        <table class="data" id="prof-table">
+                            <thead><tr>
+                                <th>System</th><th>Aufrufe</th>
+                                <th>Gesamt (ms)</th><th>Ø (ms)</th>
+                                <th>Max (ms)</th><th>Letzter (ms)</th>
+                            </tr></thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </section>
             </main>

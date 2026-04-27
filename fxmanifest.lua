@@ -19,6 +19,7 @@ shared_scripts {
     '@ox_lib/init.lua',
     'shared/modtypes.lua',
     'shared/utils.lua',
+    'shared/profiler.lua',
     'config/config.lua',
     'config/parts.lua',
     'config/locations.lua',

@@ -1,6 +1,8 @@
-:root {
+:root,
+[data-theme="dark"] {
     --bg:        #0b0d10;
     --panel:    #141820;
+    --panel-2:  #0b0f14;
     --border:   #22313f;
     --accent:   #ff9b2f;
     --accent-2: #3ec5ff;
@@ -9,7 +11,29 @@
     --bad:      #ef4e4e;
     --text:     #e6edf3;
     --muted:    #7b8794;
+    --overlay:  rgba(0,0,0,0.35);
+    --dtc-bg:   #1a1114;
+    --tablet-grad-a: #0e1218;
+    --tablet-grad-b: #0a0d12;
     --mono: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+[data-theme="light"] {
+    --bg:        #f3f5f8;
+    --panel:    #ffffff;
+    --panel-2:  #eef2f6;
+    --border:   #c9d2dc;
+    --accent:   #d97706;
+    --accent-2: #0284c7;
+    --ok:       #15803d;
+    --warn:     #b45309;
+    --bad:      #b91c1c;
+    --text:     #0f172a;
+    --muted:    #475569;
+    --overlay:  rgba(8,12,20,0.18);
+    --dtc-bg:   #fff1f1;
+    --tablet-grad-a: #ffffff;
+    --tablet-grad-b: #eef2f6;
 }
 
 * { box-sizing: border-box; }
@@ -18,14 +42,14 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', syste
 #app {
     position: fixed; inset: 0;
     display: grid; place-items: center;
-    background: rgba(0,0,0,0.35);
+    background: var(--overlay);
     backdrop-filter: blur(3px);
 }
 
 .tablet {
     width: min(980px, 92vw);
     height: min(640px, 86vh);
-    background: linear-gradient(180deg, #0e1218 0%, #0a0d12 100%);
+    background: linear-gradient(180deg, var(--tablet-grad-a) 0%, var(--tablet-grad-b) 100%);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
@@ -37,7 +61,7 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', syste
 .bar {
     padding: 0 16px;
     display: flex; align-items: center; justify-content: space-between;
-    background: #0b0f14;
+    background: var(--panel-2);
     border-bottom: 1px solid var(--border);
     font-size: 13px;
 }
@@ -48,11 +72,11 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', syste
 .brand .title { font-weight: 700; letter-spacing: 2px; font-size: 14px; }
 
 .meta { display: flex; align-items: center; gap: 8px; }
-.tag { font-size: 11px; padding: 4px 8px; background: #1b2330; border: 1px solid var(--border); border-radius: 6px; }
+.tag { font-size: 11px; padding: 4px 8px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px; }
 .tag.mono { font-family: var(--mono); }
 .close { margin-left: 6px; background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
 
-.tabs { display: flex; gap: 2px; background: #0b0f14; border-bottom: 1px solid var(--border); padding: 0 12px; }
+.tabs { display: flex; gap: 2px; background: var(--panel-2); border-bottom: 1px solid var(--border); padding: 0 12px; }
 .tabs button {
     flex: 0 0 auto; padding: 10px 14px; background: transparent; color: var(--muted);
     border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600;
@@ -76,13 +100,13 @@ body, html { margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', syste
 .gauge.ok   .val { color: var(--ok); }
 .gauge.warn .val { color: var(--warn); }
 .gauge.bad  .val { color: var(--bad); }
-.gauge .bar { height: 6px; background: #0a0d12; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+.gauge .bar { height: 6px; background: var(--panel-2); border-radius: 3px; margin-top: 8px; overflow: hidden; }
 .gauge .bar > span { display: block; height: 100%; background: var(--ok); }
 .gauge.warn .bar > span { background: var(--warn); }
 .gauge.bad  .bar > span { background: var(--bad); }
 
 ul#dtc-list { list-style: none; padding: 0; margin: 0; }
-ul#dtc-list li { font-family: var(--mono); font-size: 12px; padding: 6px 8px; border-left: 3px solid var(--bad); background: #1a1114; margin-bottom: 4px; border-radius: 4px; }
+ul#dtc-list li { font-family: var(--mono); font-size: 12px; padding: 6px 8px; border-left: 3px solid var(--bad); background: var(--dtc-bg); margin-bottom: 4px; border-radius: 4px; }
 
 table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
 table.data th, table.data td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
@@ -96,5 +120,14 @@ button.primary {
 button.primary:hover { filter: brightness(1.1); }
 
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-thumb { background: #22313f; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* Dark/Light theme toggle button (wird von JS in die .bar gehaengt) */
+.theme-toggle {
+    background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 10px; font-size: 12px; cursor: pointer;
+    margin-right: 6px;
+}
+.theme-toggle:hover { border-color: var(--accent); }
 ::-webkit-scrollbar-track { background: transparent; }

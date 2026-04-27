@@ -75,15 +75,13 @@ lib.callback.register('clp_realtuner:jobs:createEmergency', function(source, pro
     local players = ESX.GetExtendedPlayers()
     for _, p in pairs(players) do
         local j = p.getJob and p.getJob() or { name = 'unknown' }
-        for _, mj in ipairs(Config.MechanicJobs or { 'mechanic', 'tuning' }) do
-            if j.name == mj then
-                notify(p.source, 'Notfall-Dispatch', ('%s braucht Hilfe: %s'):format(xPlayer.getName and xPlayer.getName() or 'Spieler', problemText or 'Panne'), 'error')
-                TriggerClientEvent('clp_realtuner:jobs:newEmergency', p.source, {
-                    id = id, plate = plate, coords = { x = coords.x, y = coords.y, z = coords.z },
-                    customer_id = source, problem = problemText or 'Panne',
-                })
-                break
-            end
+        -- Config.MechanicJobs ist ein Hash ({ mechanic = true, ... }); Lookup per Key.
+        if Config.MechanicJobs and Config.MechanicJobs[j.name] then
+            notify(p.source, 'Notfall-Dispatch', ('%s braucht Hilfe: %s'):format(xPlayer.getName and xPlayer.getName() or 'Spieler', problemText or 'Panne'), 'error')
+            TriggerClientEvent('clp_realtuner:jobs:newEmergency', p.source, {
+                id = id, plate = plate, coords = { x = coords.x, y = coords.y, z = coords.z },
+                customer_id = source, problem = problemText or 'Panne',
+            })
         end
     end
     return id ~= nil, id
@@ -175,7 +173,7 @@ RegisterNetEvent('clp_realtuner:jobs:requestPickup', function(problemText)
     local src = source
     local xPlayer = ESX.GetPlayerFromId(src); if not xPlayer then return end
     local ped = GetPlayerPed(src); local coords = GetEntityCoords(ped)
-    local vehicle = GetVehiclePedIsIn(src, false)
+    local vehicle = GetVehiclePedIsIn(ped, false)
     local plate = vehicle ~= 0 and GetVehicleNumberPlateText(vehicle) or ''
     plate = (plate or ''):gsub('%s+', '')
     pcall(function()
@@ -185,19 +183,16 @@ RegisterNetEvent('clp_realtuner:jobs:requestPickup', function(problemText)
             VALUES (NULL, ?, ?, ?, 'pickup', ?)
         ]], { plate, getIdent(xPlayer), ('[Abhol @ %.0f/%.0f] %s'):format(coords.x, coords.y, problemText or 'Abhol-Service'), os.time() })
     end)
-    -- Broadcast
+    -- Broadcast (Config.MechanicJobs ist ein Hash, per Key-Lookup pruefen)
     local players = ESX.GetExtendedPlayers()
     for _, p in pairs(players) do
         local j = p.getJob and p.getJob() or { name = 'unknown' }
-        for _, mj in ipairs(Config.MechanicJobs or { 'mechanic', 'tuning' }) do
-            if j.name == mj then
-                notify(p.source, 'Abhol-Auftrag', ('Kunde braucht Abholung bei %.0f/%.0f'):format(coords.x, coords.y), 'inform')
-                TriggerClientEvent('clp_realtuner:jobs:newPickup', p.source, {
-                    plate = plate, coords = { x = coords.x, y = coords.y, z = coords.z },
-                    customer_id = src, problem = problemText or 'Abhol-Service',
-                })
-                break
-            end
+        if Config.MechanicJobs and Config.MechanicJobs[j.name] then
+            notify(p.source, 'Abhol-Auftrag', ('Kunde braucht Abholung bei %.0f/%.0f'):format(coords.x, coords.y), 'inform')
+            TriggerClientEvent('clp_realtuner:jobs:newPickup', p.source, {
+                plate = plate, coords = { x = coords.x, y = coords.y, z = coords.z },
+                customer_id = src, problem = problemText or 'Abhol-Service',
+            })
         end
     end
 end)

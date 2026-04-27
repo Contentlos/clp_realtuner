@@ -134,7 +134,7 @@ CreateThread(function()
                 -- Fenster kaputt?
                 local broken = IsVehicleWindowIntact and not IsVehicleWindowIntact(veh, 1)
                 if broken then
-                    setVal(plate, 'windshield_broken', 1)
+                    setVal(plate, 'windshield_broken', true)
                 end
             end
         else

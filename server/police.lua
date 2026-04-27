@@ -64,13 +64,13 @@ lib.callback.register('clp_realtuner:police:scan', function(source, plate)
         tuevStatus = 'valid'
     end
 
-    -- Letzte 5 Log-Eintraege
+    -- Letzte 5 Log-Eintraege (Spaltennamen laut INSTALL.sql: identifier/plate/detail)
     local logs = {}
     pcall(function()
         logs = MySQL.query.await([[
-            SELECT id, player, action, vehicle, vin, timestamp, extra
+            SELECT id, identifier, action, plate, vin, timestamp, detail
               FROM mechanic_logs
-             WHERE vehicle = ? OR vin = ?
+             WHERE plate = ? OR vin = ?
              ORDER BY id DESC LIMIT 5
         ]], { plate, rec.vin or '' }) or {}
     end)

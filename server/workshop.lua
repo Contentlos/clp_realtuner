@@ -15,11 +15,9 @@ local function getIdent(xPlayer)
 end
 
 local function isAdmin(xPlayer)
+    -- Config.AdminGroups ist ein Hash ({ admin = true, ... }); Key-Lookup ist korrekt.
     local grp = xPlayer.getGroup and xPlayer.getGroup() or 'user'
-    for _, allowed in ipairs(Config.AdminGroups or { 'admin' }) do
-        if grp == allowed then return true end
-    end
-    return false
+    return grp and Config.AdminGroups and Config.AdminGroups[grp] or false
 end
 
 local function loadWorkshop(id)
@@ -93,11 +91,12 @@ lib.callback.register('clp_realtuner:workshop:get', function(source, id)
     return loadWorkshop(id)
 end)
 
-lib.callback.register('clp_realtuner:workshop:buy', function(source, id, price)
+lib.callback.register('clp_realtuner:workshop:buy', function(source, id)
     local xPlayer = ESX.GetPlayerFromId(source); if not xPlayer then return false, 'no player' end
     local ws = loadWorkshop(id); if not ws then return false, 'no workshop' end
     if ws.owner and ws.owner ~= '' then return false, 'Bereits verkauft.' end
-    local cost = tonumber(price) or 500000
+    -- Preis ist server-authoritativ (ehemals vom Client uebergeben -> Exploit).
+    local cost = tonumber(Config.WorkshopBuyPrice) or 500000
     if xPlayer.getMoney() < cost and xPlayer.getAccount('bank').money < cost then
         return false, 'Nicht genuegend Geld (' .. cost .. ')'
     end

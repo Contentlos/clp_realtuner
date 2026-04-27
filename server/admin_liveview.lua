@@ -22,7 +22,10 @@ lib.callback.register('clp_realtuner:admin:liveSubscribe', function(source, plat
     return true
 end)
 
-AddEventHandler('playerDropped', function() subs[source] = nil end)
+AddEventHandler('playerDropped', function()
+    -- source ist im playerDropped-Handler implizit die droppende Spieler-ID
+    subs[source] = nil
+end)
 
 CreateThread(function()
     while true do
@@ -36,12 +39,11 @@ CreateThread(function()
     end
 end)
 
--- VIN oder Plate -> Fahrzeug aufspueren + Admin teleportieren.
--- Wir finden das Fahrzeug ueber Server-Enumeration aller Netz-Fahrzeuge und
--- Vergleich gegen den Plate-Record.
-lib.callback.register('clp_realtuner:admin:findVehicle', function(source, query)
-    local xPlayer = ESX.GetPlayerFromId(source); if not xPlayer then return nil end
-    if not isAdmin(xPlayer) then return nil end
+-- VIN oder Plate -> Fahrzeug aufspueren.
+-- Server-seitige Implementierung, damit wir sie sowohl aus dem Admin-Callback
+-- als auch aus dem Teleport-Event direkt aufrufen koennen (lib.callback.await
+-- auf dem Server zielt auf CLIENTS, nicht auf eigene Server-Callbacks).
+local function findVehicleForAdmin(query)
     query = tostring(query or ''):upper():gsub('%s+', '')
     if query == '' then return nil end
 
@@ -72,6 +74,12 @@ lib.callback.register('clp_realtuner:admin:findVehicle', function(source, query)
         end
     end
     return { plate = canonicalPlate, offline = true }
+end
+
+lib.callback.register('clp_realtuner:admin:findVehicle', function(source, query)
+    local xPlayer = ESX.GetPlayerFromId(source); if not xPlayer then return nil end
+    if not isAdmin(xPlayer) then return nil end
+    return findVehicleForAdmin(query)
 end)
 
 -- Admin-Teleport zum Fahrzeug (server-side SetEntityCoords auf Admin-Ped)
@@ -80,7 +88,7 @@ RegisterNetEvent('clp_realtuner:admin:teleport', function(query)
     local xPlayer = ESX.GetPlayerFromId(src); if not xPlayer then return end
     if not isAdmin(xPlayer) then return end
     query = tostring(query or ''):upper():gsub('%s+', '')
-    local info = lib.callback.await('clp_realtuner:admin:findVehicle', 5000, query)
+    local info = findVehicleForAdmin(query)
     if info and info.x and not info.offline then
         local ped = GetPlayerPed(src)
         SetEntityCoords(ped, info.x + 2.0, info.y + 0.0, info.z + 0.5, false, false, false, true)

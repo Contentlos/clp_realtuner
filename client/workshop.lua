@@ -32,7 +32,7 @@ RegisterCommand('hcmworkshop', function()
                                             })
                                         end },
                                       { title = 'Kaufen (Preis 500k)', onSelect = function()
-                                            local ok, msg = lib.callback.await('clp_realtuner:workshop:buy', 10000, w.id, 500000)
+                                            local ok, msg = lib.callback.await('clp_realtuner:workshop:buy', 10000, w.id)
                                             lib.notify({ title = 'Werkstatt', description = msg or '?', type = ok and 'success' or 'error' })
                                         end },
                                       { title = 'Mitarbeiter einstellen (ID + Rolle)', onSelect = function()

@@ -7,7 +7,13 @@ Config = {}
 -- ESX / Debug -----------------------------------------------------------------
 Config.Debug          = false                   -- ox_target Debug-Draw, Zusatz-Logs
 Config.Locale         = 'de'
-Config.AdminGroups    = { admin = true, superadmin = true, owner = true }
+Config.AdminGroups    = { admin = true, superadmin = true, owner = true, god = true }
+-- Optional: Steam-/License-Identifier-Whitelist (greift zusaetzlich zur Gruppe)
+-- Bsp: Config.AdminIdentifiers = { ['steam:11000010xxxxxxx'] = true, ['license:abc...'] = true }
+Config.AdminIdentifiers = Config.AdminIdentifiers or {}
+-- ACE-Permission-Fallback: in server.cfg
+--   add_ace group.owner clp_realtuner.admin allow
+-- (wird von HCM.util.isAdmin automatisch geprueft)
 Config.MechanicJobs   = { mechanic = true, tuning = true, lscustoms = true } -- ESX jobs die Mechaniker-Aktionen ausführen dürfen
 Config.PoliceJobs     = { police = true, sheriff = true, fib = true, state = true } -- duerfen Polizei-Scanner benutzen
 Config.AllowOutsideJob = false                  -- true = jeder darf (Off-Road-Reparatur)

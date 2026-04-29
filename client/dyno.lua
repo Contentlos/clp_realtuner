@@ -110,7 +110,7 @@ function HCM_C.runDyno(maxKmh)
         rpmCurve = rpmCurve, hpCurve = hpCurve,
         plate = HCM_C.plateOf(veh),
         model = GetDisplayNameFromVehicleModel(GetEntityModel(veh)),
-        timestamp = os.time(),
+        timestamp = HCM.util.now(),
     }
     sendNui('dyno:result', result)
     SetNuiFocus(true, true)

@@ -123,13 +123,13 @@ HCM_C = HCM_C or {}
 HCM_C.workshopBuffs = HCM_C.workshopBuffs or { untilTs = 0, foodBonus = 0, radioBonus = 0 }
 
 local function applyBuff(kind, seconds, strength)
-    HCM_C.workshopBuffs.untilTs = math.max(HCM_C.workshopBuffs.untilTs, os.time() + seconds)
+    HCM_C.workshopBuffs.untilTs = math.max(HCM_C.workshopBuffs.untilTs, HCM.util.now() + seconds)
     if kind == 'food' then HCM_C.workshopBuffs.foodBonus  = strength end
     if kind == 'radio' then HCM_C.workshopBuffs.radioBonus = strength end
 end
 
 function HCM_C.getWorkshopBuffPenaltyMult()
-    if os.time() > (HCM_C.workshopBuffs.untilTs or 0) then return 1.0 end
+    if HCM.util.now() > (HCM_C.workshopBuffs.untilTs or 0) then return 1.0 end
     local m = 1.0
     m = m * (1.0 - (HCM_C.workshopBuffs.foodBonus or 0))
     m = m * (1.0 - (HCM_C.workshopBuffs.radioBonus or 0))

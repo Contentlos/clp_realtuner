@@ -5,9 +5,7 @@
 local ESX = exports['es_extended']:getSharedObject()
 
 local function isAdmin(xPlayer)
-    if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    return grp and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 local function usage(src, cmd)

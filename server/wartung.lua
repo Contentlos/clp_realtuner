@@ -20,8 +20,7 @@ local function _isMechOrAdmin(xPlayer)
     if Config.AllowOutsideJob then return true end
     local job = xPlayer.job and xPlayer.job.name
     if job and Config.MechanicJobs and Config.MechanicJobs[job] then return true end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    if grp and Config.AdminGroups and Config.AdminGroups[grp] then return true end
+    if HCM.util.isAdmin(xPlayer) then return true end
     return false
 end
 

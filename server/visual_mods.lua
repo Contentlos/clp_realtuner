@@ -20,9 +20,7 @@ local function isMechanic(xPlayer)
 end
 
 local function isAdmin(xPlayer)
-    if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    return grp and Config.AdminGroups and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 -- Sanitize: nur erlaubte Felder uebernehmen, Zahlen clampen.

@@ -26,9 +26,7 @@ local function getIdent(xPlayer)
 end
 
 local function isAdmin(xPlayer)
-    if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or 'user'
-    return grp and Config.AdminGroups and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 -- Membership-Check: Owner / Manager / Mitarbeiter

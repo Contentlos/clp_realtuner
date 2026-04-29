@@ -14,7 +14,7 @@ local function startTrip(veh)
     local coords = GetEntityCoords(veh)
     current = {
         plate = plate, model = GetEntityModel(veh),
-        startTs = os.time(), startX = coords.x, startY = coords.y, startZ = coords.z,
+        startTs = HCM.util.now(), startX = coords.x, startY = coords.y, startZ = coords.z,
         lastX = coords.x, lastY = coords.y, lastZ = coords.z,
         km = 0.0, maxKmh = 0.0, sumKmh = 0.0, samples = 0,
     }
@@ -26,7 +26,7 @@ local function endTrip()
     local avg = current.sumKmh / math.max(1, current.samples)
     TriggerServerEvent('clp_realtuner:trip:end', {
         plate   = current.plate, model = current.model,
-        startTs = current.startTs, endTs = os.time(),
+        startTs = current.startTs, endTs = HCM.util.now(),
         km      = current.km, maxKmh = current.maxKmh, avgKmh = avg,
         startX  = current.startX, startY = current.startY, startZ = current.startZ,
         endX    = current.lastX, endY  = current.lastY,  endZ  = current.lastZ,
@@ -71,7 +71,7 @@ RegisterCommand('hcmtrips', function()
     local opts = {}
     for _, t in ipairs(rows) do
         opts[#opts+1] = {
-            title = ('%s – %.1f km'):format(os.date('%d.%m. %H:%M', tonumber(t.start_ts) or 0), tonumber(t.km) or 0),
+            title = ('%s – %.1f km'):format(HCM.util.formatTs(tonumber(t.start_ts) or 0, '%d.%m. %H:%M'), tonumber(t.km) or 0),
             description = ('max %.0f km/h, avg %.0f km/h'):format(tonumber(t.max_kmh) or 0, tonumber(t.avg_kmh) or 0),
             disabled = true,
         }

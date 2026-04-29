@@ -17,7 +17,7 @@ end
 function HCM.util.generateVIN(plate, model, timestamp)
     plate = (plate or ''):gsub('%s', ''):upper()
     model = tostring(model or 'UNK')
-    timestamp = timestamp or os.time()
+    timestamp = timestamp or HCM.util.now()
     local seed = timestamp
     for i = 1, #plate do seed = (seed * 131 + plate:byte(i)) % 2147483647 end
     for i = 1, #model do seed = (seed * 131 + model:byte(i)) % 2147483647 end
@@ -57,6 +57,72 @@ function HCM.util.statusLabel(health)
     elseif health >= 35 then return 'bedenklich'
     elseif health >= 15 then return 'kritisch'
     else return 'defekt' end
+end
+
+-- Zeit-Helfer: in FiveM-Client ist `os` z.T. nicht verfuegbar, je nach
+-- Lua-Sandbox/Resource. Auf dem Client nutzen wir GetCloudTimeAsInt().
+-- Auf dem Server bleibt os.time() (wird auch fuer DB-Schreiben genutzt).
+function HCM.util.now()
+    if IsDuplicityVersion and IsDuplicityVersion() then
+        return os.time()
+    end
+    if GetCloudTimeAsInt then
+        local t = GetCloudTimeAsInt()
+        if t and t > 0 then return t end
+    end
+    if os and type(os.time) == 'function' then return os.time() end
+    return math.floor((GetGameTimer() or 0) / 1000)
+end
+
+-- Formatiert Unix-Timestamp clientseitig sicher als 'TT.MM. HH:MM' o.ae.
+-- Server kann weiter os.date() benutzen.
+function HCM.util.formatTs(ts, fmt)
+    ts = tonumber(ts) or 0
+    if ts <= 0 then return '—' end
+    if os and type(os.date) == 'function' then
+        local ok, s = pcall(os.date, fmt or '%d.%m. %H:%M', ts)
+        if ok and s then return s end
+    end
+    -- Fallback: simple Y-M-D HH:MM aus ts (UTC, ohne Sekunden)
+    local d = math.floor(ts / 86400)
+    local secOfDay = ts - d * 86400
+    local hh = math.floor(secOfDay / 3600)
+    local mm = math.floor((secOfDay % 3600) / 60)
+    -- 1970-01-01 ist Donnerstag; einfache Y-M-D-Berechnung waere overkill.
+    return string.format('%02d:%02d', hh, mm)
+end
+
+-- ============================================================================
+--  Auth-Helfer (server-only) - akzeptiert ESX-Group, ACE-Permissions
+--  und optionale Identifier-Whitelist aus Config.AdminIdentifiers
+--  Wir definieren die Funktion auch auf dem Client (no-op), damit Lua-Refs
+--  nicht crashen falls sie versehentlich client-seitig aufgerufen werden.
+-- ============================================================================
+function HCM.util.isAdmin(xPlayer)
+    if not xPlayer then return false end
+    -- 1) ESX-Gruppe (users.group)
+    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
+    if grp and Config and Config.AdminGroups and Config.AdminGroups[grp] then
+        return true
+    end
+    -- 2) ACE-Permissions (server.cfg `add_ace group.owner clp_realtuner.admin allow`)
+    if IsDuplicityVersion and IsDuplicityVersion() then
+        local src = xPlayer.source or (xPlayer.getIdentifier and xPlayer.getIdentifier() and tonumber(xPlayer.source))
+        if src and IsPlayerAceAllowed and IsPlayerAceAllowed(tostring(src), 'clp_realtuner.admin') then
+            return true
+        end
+        -- 3) Identifier-Whitelist (Config.AdminIdentifiers = { ['steam:...'] = true })
+        if Config and Config.AdminIdentifiers and xPlayer.identifiers then
+            for _, id in ipairs(xPlayer.identifiers) do
+                if Config.AdminIdentifiers[id] then return true end
+            end
+        end
+        if Config and Config.AdminIdentifiers and xPlayer.getIdentifier then
+            local pid = xPlayer.getIdentifier()
+            if pid and Config.AdminIdentifiers[pid] then return true end
+        end
+    end
+    return false
 end
 
 function HCM.util.shallowCopy(t)

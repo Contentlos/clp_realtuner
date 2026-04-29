@@ -34,7 +34,7 @@ RegisterCommand('hcminsurances', function()
         opts[#opts+1] = {
             title = ('%s - %s'):format(r.plate, r.policy_type),
             description = ('Coverage $%d, SB $%d, bis %s'):format(
-                r.coverage, r.deductible, os.date('%d.%m.%Y', tonumber(r.valid_until) or 0)),
+                r.coverage, r.deductible, HCM.util.formatTs(tonumber(r.valid_until) or 0, '%d.%m.%Y')),
             disabled = true,
         }
     end

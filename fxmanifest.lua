@@ -58,6 +58,7 @@ client_scripts {
     'client/admin_liveview.lua',
     'client/inspector.lua',
     'client/workshop_pc.lua',
+    'client/workshop_world.lua',
 }
 
 server_scripts {
@@ -80,6 +81,7 @@ server_scripts {
     'server/admin_liveview.lua',
     'server/visual_mods.lua',
     'server/workshop_pc.lua',
+    'server/workers_broadcast.lua',
 }
 
 ui_page 'html/index.html'

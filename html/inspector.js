@@ -198,6 +198,7 @@
         sWheels.appendChild(renderWheelTypes(payload.slots.wheelTypes, payload.slots.currentWheelType));
         // Paint section
         const sPaint = clearSection('paint');
+        for (const s of byCat.paint) sPaint.appendChild(renderModSlot(s));
         sPaint.appendChild(renderPaint(payload.slots.paint, payload.slots.paintTypes, payload.slots.currentPaint));
         const liv = renderLivery(payload.slots.liveryCount, payload.slots.currentLivery);
         if (liv) sPaint.appendChild(liv);

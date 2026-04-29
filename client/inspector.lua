@@ -525,7 +525,14 @@ function HCM_C.applyVisualMods(veh, rec)
                 local maxIdx = (GetNumVehicleMods(veh, def.modType) or 1) - 1
                 local idx = entry.idx
                 if idx > maxIdx then idx = maxIdx end
-                if idx >= -1 then SetVehicleMod(veh, def.modType, idx, false) end
+                -- Custom-Tires-Flag erhalten, sonst gehen Customs nach Spawn verloren
+                local customTires = false
+                if def.modType == MOD.FRONT_WHEELS and type(v.wheelVar) == 'table' then
+                    customTires = v.wheelVar[1] and true or false
+                elseif def.modType == MOD.BACK_WHEELS and type(v.wheelVar) == 'table' then
+                    customTires = v.wheelVar[2] and true or false
+                end
+                if idx >= -1 then SetVehicleMod(veh, def.modType, idx, customTires) end
             end
         end
     end

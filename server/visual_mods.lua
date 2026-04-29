@@ -51,6 +51,12 @@ local function sanitize(payload)
     if tonumber(payload.wheelType) then out.wheelType = math.max(0, math.min(11, math.floor(payload.wheelType))) end
     if tonumber(payload.livery)     then out.livery    = math.max(-1, math.floor(payload.livery)) end
     if tonumber(payload.windowTint) then out.windowTint = math.max(0, math.min(6, math.floor(payload.windowTint))) end
+    if type(payload.wheelVar) == 'table' then
+        out.wheelVar = {
+            payload.wheelVar[1] and true or false,
+            payload.wheelVar[2] and true or false,
+        }
+    end
     return out
 end
 

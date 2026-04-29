@@ -241,8 +241,8 @@ lib.callback.register('clp_realtuner:wspc:order', function(source, workshopId, i
     local minS = tonumber(Config.OrderDelayMin) or 300
     local maxS = tonumber(Config.OrderDelayMax) or 900
     local eta  = os.time() + math.random(minS, maxS)
-    pcall(function()
-        MySQL.insert.await([[
+    local insertOk, insertId = pcall(function()
+        return MySQL.insert.await([[
             INSERT INTO mechanic_workshop_orders
                 (workshop_id, item, category, amount, unit_cost, total_cost,
                  ordered_by, ordered_at, delivers_at, status)
@@ -250,6 +250,15 @@ lib.callback.register('clp_realtuner:wspc:order', function(source, workshopId, i
         ]], { workshopId, item, cat, amount, unitCost, total,
               getIdent(xPlayer), os.time(), eta })
     end)
+    if not insertOk or not insertId then
+        -- Rollback: Geld auf Werkstattkonto zurueck
+        pcall(function()
+            MySQL.update.await(
+                'UPDATE mechanic_workshops SET bank = bank + ?, updated_at = ? WHERE id = ?',
+                { total, os.time(), workshopId })
+        end)
+        return false, 'Bestellung fehlgeschlagen – Betrag zurueckerstattet.'
+    end
     HCM.server.log(xPlayer, 'wspc:order', nil, nil,
         { id = workshopId, item = item, amount = amount, total = total, eta = eta })
     return true, ('Bestellt: %dx %s · ETA %s'):format(amount, item, os.date('%H:%M', eta))
@@ -392,13 +401,18 @@ lib.callback.register('clp_realtuner:wspc:returnStock', function(source, worksho
     if (count or 0) < amount then return false, 'Nicht genug im Inventar.' end
     local ok = ox:RemoveItem(source, item, amount)
     if not ok then return false, 'Inventar-Fehler.' end
-    pcall(function()
+    local insertOk = pcall(function()
         MySQL.insert.await([[
             INSERT INTO mechanic_workshop_stock (workshop_id, item, amount, min_stock, category)
             VALUES (?, ?, ?, 0, ?)
             ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), category = VALUES(category)
         ]], { workshopId, item, amount, cat })
     end)
+    if not insertOk then
+        -- Rollback: Item zurueck ins Spielerinventar, sonst weg
+        pcall(function() ox:AddItem(source, item, amount) end)
+        return false, 'Datenbankfehler – Item zurueckerstattet.'
+    end
     HCM.server.log(xPlayer, 'wspc:return', nil, nil, { id = workshopId, item = item, amount = amount })
     return true, ('%dx %s eingelagert'):format(amount, item)
 end)

@@ -225,15 +225,23 @@ function HCM_C.performPaint(entity, colorType, primaryRGB)
 
     local results = { primer = nil, base = nil, clear = nil }
 
+    -- Phasen-Anzahl dynamisch (matte hat z.B. keinen Klarlack)
+    local totalPhases = 1 -- base ist immer da
+    if def.primerS > 0 then totalPhases = totalPhases + 1 end
+    if def.clearS  > 0 then totalPhases = totalPhases + 1 end
+    local phaseNum = 0
+
     -- Verbrauchsmaterial vor jedem Schritt verbrauchen (lokal optimistisch,
     -- der Server entfernt es ueber den paint:apply Callback nochmal sicher).
     if def.primerS > 0 then
-        lib.notify({ title = 'Lack', description = 'Phase 1/3: Grundierung', type = 'inform' })
+        phaseNum = phaseNum + 1
+        lib.notify({ title = 'Lack', description = ('Phase %d/%d: Grundierung'):format(phaseNum, totalPhases), type = 'inform' })
         results.primer = sprayPhase(entity, 'primer', def.primerS * 1000, nil)
         dryingPhase(entity, math.floor(def.drying * 0.6))
     end
 
-    lib.notify({ title = 'Lack', description = 'Phase 2/3: Basislack', type = 'inform' })
+    phaseNum = phaseNum + 1
+    lib.notify({ title = 'Lack', description = ('Phase %d/%d: Basislack'):format(phaseNum, totalPhases), type = 'inform' })
     results.base = sprayPhase(entity, 'base', def.baseS * 1000, primaryRGB)
     -- Farbe sofort anwenden
     SetVehicleModColor_1(entity, 3, 0, 0)
@@ -242,7 +250,8 @@ function HCM_C.performPaint(entity, colorType, primaryRGB)
 
     if def.clearS > 0 then
         dryingPhase(entity, math.floor(def.drying))
-        lib.notify({ title = 'Lack', description = 'Phase 3/3: Klarlack', type = 'inform' })
+        phaseNum = phaseNum + 1
+        lib.notify({ title = 'Lack', description = ('Phase %d/%d: Klarlack'):format(phaseNum, totalPhases), type = 'inform' })
         results.clear = sprayPhase(entity, 'clear', def.clearS * 1000, nil)
         if colorType == 'pearl' then SetVehicleExtraColours(entity, 0, 150) end
         dryingPhase(entity, math.floor(def.drying))

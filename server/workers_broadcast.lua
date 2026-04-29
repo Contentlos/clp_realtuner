@@ -24,7 +24,10 @@ local function tickOnce()
     local list = {}
     local recipients = {}
 
-    for _, xP in ipairs(players) do
+    -- ESX.GetExtendedPlayers() liefert ein nach source-Id keyed Hash-Table
+    -- ({[1]=xP, [5]=xP, ...}), keinen sequentiellen Array. ipairs() bricht
+    -- beim ersten Loch ab und wuerde die meisten Spieler ueberspringen.
+    for _, xP in pairs(players) do
         if isStaff(xP) then
             local src = xP.source
             local ped = GetPlayerPed(src)

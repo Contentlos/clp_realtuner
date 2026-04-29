@@ -19,6 +19,7 @@ shared_scripts {
     '@ox_lib/init.lua',
     'shared/modtypes.lua',
     'shared/utils.lua',
+    'shared/categories.lua',
     'shared/profiler.lua',
     'config/config.lua',
     'config/parts.lua',
@@ -56,6 +57,7 @@ client_scripts {
     'bridges/lbphone.lua',
     'client/admin_liveview.lua',
     'client/inspector.lua',
+    'client/workshop_pc.lua',
 }
 
 server_scripts {
@@ -77,6 +79,7 @@ server_scripts {
     'server/insurance.lua',
     'server/admin_liveview.lua',
     'server/visual_mods.lua',
+    'server/workshop_pc.lua',
 }
 
 ui_page 'html/index.html'
@@ -88,11 +91,13 @@ files {
     'html/hud.css',
     'html/diag.css',
     'html/inspector.css',
+    'html/wspc.css',
     'html/app.js',
     'html/admin.js',
     'html/hud.js',
     'html/diag.js',
     'html/inspector.js',
+    'html/wspc.js',
     'html/phone_app.html',
     'migrations/INDEX.txt',
     'migrations/000_base_schema_fix.sql',
@@ -101,6 +106,7 @@ files {
     'migrations/003_progression_racing_police.sql',
     'migrations/004_portfolio.sql',
     'migrations/005_police.sql',
+    'migrations/006_warehouse_orders.sql',
 }
 
 provide 'clp_realtuner'

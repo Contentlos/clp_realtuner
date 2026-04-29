@@ -12,6 +12,16 @@ Config.MechanicJobs   = { mechanic = true, tuning = true, lscustoms = true } -- 
 Config.PoliceJobs     = { police = true, sheriff = true, fib = true, state = true } -- duerfen Polizei-Scanner benutzen
 Config.AllowOutsideJob = false                  -- true = jeder darf (Off-Road-Reparatur)
 Config.WorkshopBuyPrice = 500000                -- server-authoritativer Preis fuer Werkstatt-Kauf
+
+-- Bestellsystem (Batch 14b) -------------------------------------------------
+-- Lieferzeit-Spanne fuer Lager-Bestellungen (Sekunden)
+Config.OrderDelayMin = 300                       -- 5 Minuten
+Config.OrderDelayMax = 900                       -- 15 Minuten
+
+-- Lager-Pflicht: wenn true, koennen Mechaniker Teile NUR aus dem
+-- Werkstatt-Lager einbauen (nicht aus eigenem Inventar). Default false
+-- = locker (Inventar geht weiterhin), true = hardcore.
+Config.WorkshopMustUseStock = false
 Config.TUeVValidDays   = 365                    -- wie lange eine bestandene TUeV-Pruefung gilt
 Config.TUeVGracePeriod = 14                     -- Tage Toleranz nach Ablauf
 

@@ -55,6 +55,7 @@ client_scripts {
     'bridges/fuel.lua',
     'bridges/lbphone.lua',
     'client/admin_liveview.lua',
+    'client/inspector.lua',
 }
 
 server_scripts {
@@ -75,6 +76,7 @@ server_scripts {
     'server/police.lua',
     'server/insurance.lua',
     'server/admin_liveview.lua',
+    'server/visual_mods.lua',
 }
 
 ui_page 'html/index.html'
@@ -85,10 +87,12 @@ files {
     'html/admin.css',
     'html/hud.css',
     'html/diag.css',
+    'html/inspector.css',
     'html/app.js',
     'html/admin.js',
     'html/hud.js',
     'html/diag.js',
+    'html/inspector.js',
     'html/phone_app.html',
     'migrations/INDEX.txt',
     'migrations/000_base_schema_fix.sql',

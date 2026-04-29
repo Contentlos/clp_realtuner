@@ -464,9 +464,51 @@
     </div>
 
     <link rel="stylesheet" href="diag.css" />
+    <link rel="stylesheet" href="inspector.css" />
+
+    <!-- ========== 3D Inspector Sidebar (Batch 14a) ========== -->
+    <div id="inspector" class="hidden">
+        <aside class="ins-side">
+            <div class="ins-head">
+                <span class="ins-title">3D-INSPECTOR</span>
+                <span class="ins-sub">Visuelle Modifikationen — Live-Vorschau</span>
+                <span class="ins-plate">----</span>
+            </div>
+            <nav class="ins-tabs">
+                <button data-sec="body"     class="active">Karosserie</button>
+                <button data-sec="wheels">Räder</button>
+                <button data-sec="paint">Lack</button>
+                <button data-sec="interior">Innenraum</button>
+                <button data-sec="engine">Motor</button>
+                <button data-sec="perf">Performance</button>
+            </nav>
+            <div class="ins-body">
+                <section id="ins-sec-body"     class="ins-section active"></section>
+                <section id="ins-sec-wheels"   class="ins-section"></section>
+                <section id="ins-sec-paint"    class="ins-section"></section>
+                <section id="ins-sec-interior" class="ins-section"></section>
+                <section id="ins-sec-engine"   class="ins-section"></section>
+                <section id="ins-sec-perf"     class="ins-section"></section>
+            </div>
+            <div class="ins-foot">
+                <button class="cancel" type="button">Abbrechen</button>
+                <button class="confirm" type="button">Übernehmen</button>
+            </div>
+        </aside>
+        <div class="ins-tip">
+            <kbd>RMB</kbd> halten + Maus → drehen ·
+            <kbd>Mausrad</kbd> → zoomen ·
+            <kbd>W</kbd>/<kbd>S</kbd> Pitch ·
+            <kbd>A</kbd>/<kbd>D</kbd> Yaw ·
+            <kbd>ESC</kbd> Abbrechen ·
+            <kbd>Enter</kbd> Übernehmen
+        </div>
+    </div>
+
     <script src="app.js"></script>
     <script src="admin.js"></script>
     <script src="hud.js"></script>
     <script src="diag.js"></script>
+    <script src="inspector.js"></script>
 </body>
 </html>

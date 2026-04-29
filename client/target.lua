@@ -210,6 +210,15 @@ local options = {
 
     -- ===== GLOBAL =====
     {
+        name = 'clp_realtuner:inspector',
+        label = 'Visuelles Tuning (3D-Inspector)',
+        icon = 'fa-solid fa-camera-rotate',
+        bones = { 'chassis', 'bonnet', 'roof' },
+        distance = 2.5,
+        canInteract = function(entity) return canInteractBase(entity) and engineIsOff(entity) end,
+        onSelect = function(data) HCM_C.openInspector(data.entity) end,
+    },
+    {
         name = 'clp_realtuner:fullscan',
         label = 'Fahrzeug analysieren',
         icon = 'fa-solid fa-magnifying-glass-chart',

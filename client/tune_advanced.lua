@@ -232,6 +232,7 @@ CreateThread(function()
                 if rec.tuning_data and rec.tuning_data.engine_swap and ENGINE_PRESETS[rec.tuning_data.engine_swap] then
                     ForceVehicleEngineAudio(veh, rec.tuning_data.engine_swap)
                 end
+                if HCM_C.applyVisualMods then HCM_C.applyVisualMods(veh, rec) end
             end
         end
     end

@@ -131,7 +131,16 @@ local function restoreSnapshot(veh, snap)
     SetVehicleModKit(veh, 0)
     for _, def in ipairs(SLOT_DEFS) do
         local idx = snap.mods[def.key]
-        if idx ~= nil then SetVehicleMod(veh, def.modType, idx, false) end
+        if idx ~= nil then
+            -- Custom-Tires-Flag fuer Raeder erhalten, sonst gehen Customs verloren
+            local customTires = false
+            if def.modType == MOD.FRONT_WHEELS then
+                customTires = (snap.wheelVar and snap.wheelVar[1]) and true or false
+            elseif def.modType == MOD.BACK_WHEELS then
+                customTires = (snap.wheelVar and snap.wheelVar[2]) and true or false
+            end
+            SetVehicleMod(veh, def.modType, idx, customTires)
+        end
     end
     for _, t in ipairs(TOGGLE_DEFS) do
         ToggleVehicleMod(veh, t.modType, snap.toggles[t.key] and true or false)
@@ -348,6 +357,10 @@ local function persistVisualMods(veh)
         wheelType = GetVehicleWheelType(veh),
         livery = GetVehicleLivery(veh),
         windowTint = GetVehicleWindowTint(veh),
+        wheelVar = {
+            GetVehicleModVariation(veh, MOD.FRONT_WHEELS) and true or false,
+            GetVehicleModVariation(veh, MOD.BACK_WHEELS) and true or false,
+        },
     }
     for _, def in ipairs(SLOT_DEFS) do
         payload.mods[def.key] = { modType = def.modType, idx = GetVehicleMod(veh, def.modType) }
@@ -361,19 +374,22 @@ local function persistVisualMods(veh)
         interior = GetVehicleInteriorColor(veh),
         dashboard = GetVehicleDashboardColor(veh),
     }
+    -- Cache OPTIMISTISCH vor dem Server-Roundtrip aktualisieren, damit der
+    -- 2s-Apply-Loop in tune_advanced.lua waehrend des yields auf
+    -- lib.callback.await NICHT mit dem alten Stand zurueckrollt (kurzer
+    -- Flicker). Bei Server-Reject rollen wir den Cache zurueck.
+    local rec = HCM_C.records and HCM_C.records[plate]
+    local prevVisualMods = rec and rec.tuning_data and rec.tuning_data.visualMods
+    if rec then
+        rec.tuning_data = rec.tuning_data or {}
+        rec.tuning_data.visualMods = payload
+    end
     local ok, msg = lib.callback.await('clp_realtuner:visual:apply', 5000, plate, payload)
     if ok then
-        -- Lokalen Record-Cache aktualisieren, damit der 2s Apply-Loop in
-        -- tune_advanced.lua die neuen Mods kennt und nicht mit den alten
-        -- visualMods aus dem Cache ueberschreibt. Inspector-Open-Guard greift
-        -- hier nicht mehr, weil State.open beim closeInspector schon false ist.
-        local rec = HCM_C.records and HCM_C.records[plate]
-        if rec then
-            rec.tuning_data = rec.tuning_data or {}
-            rec.tuning_data.visualMods = payload
-        end
         lib.notify({ title = 'Tuning', description = 'Visuelles Tuning gespeichert.', type = 'success' })
     else
+        -- Cache zuruecksetzen, sonst behaelt der Apply-Loop die nicht-persistierten Mods
+        if rec then rec.tuning_data.visualMods = prevVisualMods end
         lib.notify({ title = 'Tuning', description = 'Server: ' .. tostring(msg or 'Fehler'), type = 'error' })
     end
 end

@@ -41,13 +41,16 @@ local function gunCoord(ped)
     return p.x + fwd.x * 0.4, p.y + fwd.y * 0.4, p.z + 0.6
 end
 
--- Sweet-spot Distanzbewertung
+-- Sweet-spot Distanzbewertung. Floor ist bewusst 0.3, damit ein
+-- konsequentes Stehen ausserhalb des Sweet-Spots nicht ueber alle Phasen
+-- multipliziert auf 0% Quality runterdrueckt. 0% wird durch Bewegung
+-- (movementQuality) und sehr schlechte Skill-Mods erreicht.
 local function distQuality(ped, veh)
     local pp = GetEntityCoords(ped)
     local vp = GetEntityCoords(veh)
     local dx = pp.x - vp.x; local dy = pp.y - vp.y
     local d = math.sqrt(dx * dx + dy * dy)
-    if d < 0.8 or d > 3.0 then return 0.0 end
+    if d < 0.8 or d > 3.0 then return 0.3 end
     if d >= 1.2 and d <= 2.4 then return 1.0 end
     return 0.6 -- Penalty-Zone
 end
@@ -259,12 +262,15 @@ function HCM_C.performPaint(entity, colorType, primaryRGB)
         dryingPhase(entity, math.floor(def.drying))
     end
 
-    -- Gesamt-Quality-Score: Produkt der Phasen-Qualitaeten * baseScore.
-    -- Skill kommt server-seitig dazu.
-    local q = (results.primer and results.primer.quality or 1.0)
-            * (results.base   and results.base.quality   or 1.0)
-            * (results.clear  and results.clear.quality  or 1.0)
-            * def.baseScore
+    -- Gesamt-Quality-Score: gewichteter Mittelwert der durchgefuehrten Phasen
+    -- (base haelt das hoechste Gewicht). Multiplikation wuerde drei knappe
+    -- 0.3-Werte auf ~0% drucken obwohl der Vorgang vollstaendig erfolgte.
+    local sum, weight = 0.0, 0.0
+    if results.primer then sum = sum + results.primer.quality * 0.25; weight = weight + 0.25 end
+    if results.base   then sum = sum + results.base.quality   * 0.55; weight = weight + 0.55 end
+    if results.clear  then sum = sum + results.clear.quality  * 0.20; weight = weight + 0.20 end
+    if weight <= 0 then weight = 1 end
+    local q = (sum / weight) * def.baseScore
     local quality = math.floor(math.max(0, math.min(1, q)) * 100 + 0.5)
 
     local ok, result = lib.callback.await('clp_realtuner:paint', 4000,

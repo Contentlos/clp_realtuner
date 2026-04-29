@@ -11,8 +11,7 @@ local function isPolice(xPlayer)
     if not xPlayer then return false end
     local job = xPlayer.job and xPlayer.job.name
     if job and Config.PoliceJobs and Config.PoliceJobs[job] then return true end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    if grp and Config.AdminGroups and Config.AdminGroups[grp] then return true end
+    if HCM.util.isAdmin(xPlayer) then return true end
     return false
 end
 
@@ -99,9 +98,8 @@ end)
 lib.callback.register('clp_realtuner:police:etchVin', function(source, plate)
     local xPlayer = ESX.GetPlayerFromId(source); if not xPlayer then return false end
     local job = xPlayer.job and xPlayer.job.name
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
     local allowed = (job and Config.MechanicJobs and Config.MechanicJobs[job])
-        or (grp and Config.AdminGroups and Config.AdminGroups[grp])
+        or HCM.util.isAdmin(xPlayer)
     if not allowed then return false end
     plate = HCM.util.normalizePlate(plate or '')
     local rec = HCM.server.loadRecord(plate)

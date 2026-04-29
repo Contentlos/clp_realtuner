@@ -5,3 +5,4 @@ migrations/002_workshops.sql
 migrations/003_progression_racing_police.sql
 migrations/004_portfolio.sql
 migrations/005_police.sql
+migrations/006_warehouse_orders.sql

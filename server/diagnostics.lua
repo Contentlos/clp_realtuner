@@ -9,8 +9,7 @@ local function isMechOrAdmin(xPlayer)
     if Config.AllowOutsideJob then return true end
     local job = xPlayer.job and xPlayer.job.name
     if job and Config.MechanicJobs and Config.MechanicJobs[job] then return true end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    if grp and Config.AdminGroups and Config.AdminGroups[grp] then return true end
+    if HCM.util.isAdmin(xPlayer) then return true end
     return false
 end
 
@@ -53,8 +52,7 @@ end)
 lib.callback.register('clp_realtuner:diag:setTUeV', function(source, plate, expires)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or 'user'
-    if not (Config.AdminGroups and Config.AdminGroups[grp]) then return false end
+    if not HCM.util.isAdmin(xPlayer) then return false end
     plate = HCM.util.normalizePlate(plate)
     pcall(function()
         MySQL.update.await('UPDATE vehicles_data SET tuev_expires = ? WHERE plate = ?',

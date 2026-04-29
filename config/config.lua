@@ -7,11 +7,27 @@ Config = {}
 -- ESX / Debug -----------------------------------------------------------------
 Config.Debug          = false                   -- ox_target Debug-Draw, Zusatz-Logs
 Config.Locale         = 'de'
-Config.AdminGroups    = { admin = true, superadmin = true, owner = true }
+Config.AdminGroups    = { admin = true, superadmin = true, owner = true, god = true }
+-- Optional: Steam-/License-Identifier-Whitelist (greift zusaetzlich zur Gruppe)
+-- Bsp: Config.AdminIdentifiers = { ['steam:11000010xxxxxxx'] = true, ['license:abc...'] = true }
+Config.AdminIdentifiers = Config.AdminIdentifiers or {}
+-- ACE-Permission-Fallback: in server.cfg
+--   add_ace group.owner clp_realtuner.admin allow
+-- (wird von HCM.util.isAdmin automatisch geprueft)
 Config.MechanicJobs   = { mechanic = true, tuning = true, lscustoms = true } -- ESX jobs die Mechaniker-Aktionen ausführen dürfen
 Config.PoliceJobs     = { police = true, sheriff = true, fib = true, state = true } -- duerfen Polizei-Scanner benutzen
 Config.AllowOutsideJob = false                  -- true = jeder darf (Off-Road-Reparatur)
 Config.WorkshopBuyPrice = 500000                -- server-authoritativer Preis fuer Werkstatt-Kauf
+
+-- Bestellsystem (Batch 14b) -------------------------------------------------
+-- Lieferzeit-Spanne fuer Lager-Bestellungen (Sekunden)
+Config.OrderDelayMin = 300                       -- 5 Minuten
+Config.OrderDelayMax = 900                       -- 15 Minuten
+
+-- Lager-Pflicht: wenn true, koennen Mechaniker Teile NUR aus dem
+-- Werkstatt-Lager einbauen (nicht aus eigenem Inventar). Default false
+-- = locker (Inventar geht weiterhin), true = hardcore.
+Config.WorkshopMustUseStock = false
 Config.TUeVValidDays   = 365                    -- wie lange eine bestandene TUeV-Pruefung gilt
 Config.TUeVGracePeriod = 14                     -- Tage Toleranz nach Ablauf
 

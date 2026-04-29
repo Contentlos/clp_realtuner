@@ -15,9 +15,7 @@ local function getIdent(xPlayer)
 end
 
 local function isAdmin(xPlayer)
-    -- Config.AdminGroups ist ein Hash ({ admin = true, ... }); Key-Lookup ist korrekt.
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or 'user'
-    return grp and Config.AdminGroups and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 local function loadWorkshop(id)

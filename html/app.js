@@ -16,8 +16,14 @@
     const tabs     = document.querySelectorAll('#app .tab');
     const tblInstalled = document.querySelector('#parts-installed tbody');
     const tblMissing   = document.querySelector('#parts-missing tbody');
-    const tblUpgrade   = document.querySelector('#parts-upgrade tbody');
     const tblHistory   = document.querySelector('#history-table tbody');
+    const tblPortfolio = document.querySelector('#portfolio-table tbody');
+    const personName   = document.getElementById('person-name');
+    const personRank   = document.getElementById('person-rank');
+    const personXpFill = document.getElementById('person-xp-fill');
+    const personXpLabel= document.getElementById('person-xp-label');
+    const specGrid     = document.getElementById('spec-grid');
+    const certList     = document.getElementById('cert-list');
     const btnClose     = document.getElementById('btn-close');
     const btnRescan    = document.getElementById('btn-rescan');
 
@@ -105,12 +111,58 @@
             tblMissing.appendChild(tr);
         });
 
-        tblUpgrade.innerHTML = '';
-        (s.upgrades || []).forEach((r) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${r.slot}</td><td>${r.best.label}</td><td>Q${r.best.quality}</td>`;
-            tblUpgrade.appendChild(tr);
-        });
+    }
+
+    const RANK_LABEL = { 0: 'Lehrling', 1: 'Geselle', 2: 'Meister' };
+    const SPEC_LABEL = {
+        engine: 'Motor', brakes: 'Bremsen', paint: 'Lack',
+        electrics: 'Elektrik', chassis: 'Fahrwerk',
+    };
+
+    function renderPerson() {
+        const p = STATE.person || {};
+        const me = STATE.me || {};
+        if (personName) personName.textContent = me.charname || me.identifier || '—';
+        const rank = (typeof p.rank === 'number') ? p.rank : 0;
+        if (personRank) personRank.textContent = RANK_LABEL[rank] || 'Lehrling';
+        const lvl = (me.skill && me.skill.level) || (p.level || 0);
+        const xp  = (me.skill && me.skill.xp) || (p.xp || 0);
+        const next = Math.max(100, (lvl + 1) * 200);
+        if (personXpFill) personXpFill.style.width = Math.min(100, Math.round(xp / next * 100)) + '%';
+        if (personXpLabel) personXpLabel.textContent = `Lv ${lvl} · XP ${xp} / ${next}`;
+        if (specGrid) {
+            specGrid.innerHTML = '';
+            const specs = p.specs || {};
+            for (const k of Object.keys(SPEC_LABEL)) {
+                const score = specs[k] || 0;
+                const div = document.createElement('div');
+                div.className = 'spec';
+                div.innerHTML = `<div class="spec-lbl">${SPEC_LABEL[k]}</div>
+                                 <div class="spec-score">${score}</div>
+                                 <div class="spec-bar"><span style="width:${Math.min(100, score)}%"></span></div>`;
+                specGrid.appendChild(div);
+            }
+        }
+        if (certList) {
+            certList.innerHTML = '';
+            for (const c of (p.certs || [])) {
+                const li = document.createElement('li');
+                const ts = c.issued_at ? new Date(c.issued_at * 1000).toLocaleDateString() : '';
+                li.innerHTML = `<b>${c.name || c.kind || 'Zertifikat'}</b><span>${ts}</span>`;
+                certList.appendChild(li);
+            }
+            if (!(p.certs || []).length) certList.innerHTML = '<li style="color:var(--muted)">Noch keine Zertifikate.</li>';
+        }
+        if (tblPortfolio) {
+            tblPortfolio.innerHTML = '';
+            for (const r of (p.portfolio || [])) {
+                const tr = document.createElement('tr');
+                const ts = new Date((r.timestamp || 0) * 1000).toLocaleString();
+                tr.innerHTML = `<td>${ts}</td><td>${r.action || ''}</td><td>${r.plate || ''}</td>`;
+                tblPortfolio.appendChild(tr);
+            }
+            if (!(p.portfolio || []).length) tblPortfolio.innerHTML = '<tr><td colspan="3" style="color:var(--muted)">Noch keine Eintraege.</td></tr>';
+        }
     }
 
     function renderHistory() {
@@ -189,6 +241,7 @@
             renderDiag();
             renderScan();
             renderHistory();
+            renderPerson();
         } else if (msg.action === 'close') {
             app.classList.add('hidden');
             STATE = {};

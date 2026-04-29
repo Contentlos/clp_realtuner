@@ -18,9 +18,7 @@ local function isMechanic(xPlayer)
 end
 
 local function isAdmin(xPlayer)
-    if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    return grp and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 -- Record Lookup / Load --------------------------------------------------------
@@ -160,7 +158,15 @@ lib.callback.register('clp_realtuner:remove', function(source, plate, slotKey)
 end)
 
 -- Lackierung ------------------------------------------------------------------
-lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, primaryRGB, secondaryRGB, pearlRGB)
+-- Verbrauchsmaterial pro Lacktyp. Spraycan (Config.Paint.Tool) ist
+-- wiederverwendbares Werkzeug und wird NICHT entfernt.
+local PAINT_CONSUMABLES = {
+    matte    = { 'paint_can_matt' },
+    metallic = { 'paint_can_metallic', 'paint_clearcoat' },
+    pearl    = { 'paint_can_pearl', 'paint_clearcoat', 'paint_primer' },
+}
+
+lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, primaryRGB, secondaryRGB, clientQuality)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return false, 'no_player' end
     if not isMechanic(xPlayer) and not isAdmin(xPlayer) then return false, 'not_mechanic' end
@@ -169,19 +175,53 @@ lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, 
     local rec = HCM.server.loadRecord(plate)
     if not rec then return false, 'no_record' end
 
-    -- Fehlerrate abhängig vom Farbtyp & Skill
+    -- Verbrauchsmaterial autoritativ entfernen. Erst pruefen dass alles da
+    -- ist, dann atomar entfernen; bei Fehlschlag rollback.
+    local consumables = PAINT_CONSUMABLES[colorType] or PAINT_CONSUMABLES.matte
+    for _, itm in ipairs(consumables) do
+        if (ox:GetItemCount(source, itm) or 0) < 1 then
+            return false, 'missing_item:' .. itm
+        end
+    end
+    local removed = {}
+    for _, itm in ipairs(consumables) do
+        if ox:RemoveItem(source, itm, 1) then
+            removed[#removed+1] = itm
+        else
+            -- Rollback: bereits entfernte Items zurueckgeben
+            for _, back in ipairs(removed) do ox:AddItem(source, back, 1) end
+            return false, 'remove_failed:' .. itm
+        end
+    end
+
+    -- Server bleibt autoritativ. clientQuality (Bewegung + Distanz) ist
+    -- nur ein Modifier auf perfectChance + Streuung im Imperfekt-Bereich.
+    -- So kann ein gespoofter clientQuality=100 maximal +20% perfect-Chance
+    -- bringen, aber nicht direkt 100/perfect garantieren.
     local baseRate
-    if colorType == 'pearl' then baseRate = Config.Paint.PearlPerfectRate
+    if colorType == 'pearl'        then baseRate = Config.Paint.PearlPerfectRate
     elseif colorType == 'metallic' then baseRate = Config.Paint.MetallicPerfectRate
-    else baseRate = Config.Paint.MattePerfectRate end
+    else                                baseRate = Config.Paint.MattePerfectRate end
     local skill = HCM.server.getSkill(xPlayer)
-    local perfectChance = HCM.util.clamp(baseRate + (skill.level - 1) * Config.Skill.FailRateReductionPerLevel, 0.05, 0.95)
+    local skillBonus  = (skill.level - 1) * Config.Skill.FailRateReductionPerLevel
+    local cq = HCM.util.clamp(tonumber(clientQuality) or 50.0, 0.0, 100.0)
+    local clientFactor = cq / 100.0                        -- 0..1
+    local clientChanceMod = (clientFactor - 0.5) * 0.4     -- -0.2..+0.2
+    local perfectChance = HCM.util.clamp(baseRate + skillBonus + clientChanceMod, 0.02, 0.95)
     local perfect = math.random() < perfectChance
-    local quality = perfect and Config.Paint.QualityPerfect or (Config.Paint.QualityFloor + math.random() * 40.0)
+    local quality
+    if perfect then
+        quality = Config.Paint.QualityPerfect
+    else
+        -- Imperfekt-Range: Floor + Streuung[0..30] + clientBonus[0..15]
+        quality = Config.Paint.QualityFloor + math.random() * 30.0 + clientFactor * 15.0
+    end
+    quality = HCM.util.clamp(quality, Config.Paint.QualityFloor, 100.0)
 
     HCM.server.applyPatch(plate, { paint_quality = HCM.util.round(quality, 2) })
     HCM.server.log(xPlayer, 'paint', plate, rec.vin, {
-        type = colorType, primary = primaryRGB, secondary = secondaryRGB, pearl = pearlRGB, quality = quality
+        type = colorType, primary = primaryRGB, secondary = secondaryRGB,
+        client_quality = cq, final_quality = quality,
     })
     if perfect then HCM.server.addSkillXP(xPlayer, Config.Skill.XP.paint_success) end
     return true, { perfect = perfect, quality = quality }

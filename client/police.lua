@@ -34,7 +34,7 @@ local function showScanResult(data)
     end
     local tuev = statusLabel(data.tuev_status)
     local tuevDate = data.tuev_expires and data.tuev_expires > 0
-        and os.date('%d.%m.%Y', data.tuev_expires) or '—'
+        and HCM.util.formatTs(data.tuev_expires, '%d.%m.%Y') or '—'
     local mismatch = data.vin_mismatch and ' \u{26a0} VIN-MISMATCH' or ''
     local ownerTxt = (data.owner_name and data.owner_name ~= ' ')
         and data.owner_name or 'Unbekannt / nicht registriert'

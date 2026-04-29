@@ -5,9 +5,7 @@
 local ESX = exports['es_extended']:getSharedObject()
 
 local function isAdmin(xPlayer)
-    if not xPlayer then return false end
-    local grp = xPlayer.getGroup and xPlayer.getGroup() or nil
-    return grp and Config.AdminGroups and Config.AdminGroups[grp] or false
+    return HCM.util.isAdmin(xPlayer)
 end
 
 -- Live-Subscriptions: src -> plate (oder nil). Server pusht alle 2s den aktuellen Record.

@@ -36,6 +36,7 @@ function HCM_C.openTablet(payload)
     local scan = veh and HCM_C.scanSummary and HCM_C.scanSummary(veh) or nil
     local diag = veh and HCM_C.diagnose and HCM_C.diagnose(veh) or nil
     local history = payload.plate and lib.callback.await('clp_realtuner:history', 1500, payload.plate, 30) or nil
+    local person = lib.callback.await('clp_realtuner:progression:person', 4000) or nil
 
     post('open', {
         tab = payload.tab or 'diag',
@@ -44,6 +45,7 @@ function HCM_C.openTablet(payload)
         scan = scan,
         diag = diag,
         history = history,
+        person = person,
     })
 end
 

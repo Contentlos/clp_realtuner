@@ -131,3 +131,85 @@ button.primary:hover { filter: brightness(1.1); }
 }
 .theme-toggle:hover { border-color: var(--accent); }
 ::-webkit-scrollbar-track { background: transparent; }
+
+/* Tablet Refresh (Batch 14c) — Person-Tab + Notice ----------------------- */
+#app .panel.notice {
+    background: rgba(80,200,255,0.08);
+    border: 1px solid rgba(80,200,255,0.22);
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.55;
+}
+#app .panel.notice strong { color: var(--accent); }
+
+#app .person-head {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 14px;
+    align-items: center;
+}
+#app .person-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #9aebff);
+    color: #08101c; font-weight: 700; font-size: 26px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+#app .person-meta { display: flex; flex-direction: column; gap: 4px; }
+#app .person-name { font-size: 16px; font-weight: 600; }
+#app .person-rank {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent);
+}
+#app .person-bar {
+    margin-top: 4px; height: 18px; position: relative;
+    background: var(--panel-2); border-radius: 9px; overflow: hidden;
+    border: 1px solid var(--border);
+}
+#app .person-bar-fill {
+    position: absolute; inset: 0 auto 0 0;
+    background: linear-gradient(90deg, var(--accent), #9aebff);
+    transition: width .3s ease;
+}
+#app .person-bar span {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #08101c; font-weight: 600;
+    text-shadow: 0 0 4px rgba(255,255,255,0.4);
+}
+
+#app .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+#app .spec {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px;
+}
+#app .spec-lbl {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 4px;
+}
+#app .spec-score {
+    font-size: 22px; font-weight: 600; color: var(--text);
+    font-family: ui-monospace, 'JetBrains Mono', Menlo, Consolas, monospace;
+}
+#app .spec-bar {
+    height: 4px; background: var(--border); border-radius: 2px;
+    margin-top: 6px; overflow: hidden;
+}
+#app .spec-bar > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--accent), #9aebff);
+    transition: width .3s;
+}
+
+#app .cert-list { list-style: none; padding: 0; margin: 0; }
+#app .cert-list li {
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+#app .cert-list li b { color: var(--accent); }
+#app .cert-list li span { color: var(--muted); font-size: 11px; }

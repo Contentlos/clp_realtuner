@@ -200,3 +200,41 @@ lib.callback.register('clp_realtuner:progression:certificates', function(source)
     end)
     return rows
 end)
+
+-- Aggregiertes Person-Snapshot (Batch 14c) -----------------------------------
+local TIER_RANK = { lehrling = 0, geselle = 1, meister = 2 }
+
+lib.callback.register('clp_realtuner:progression:person', function(source)
+    local xPlayer = ESX.GetPlayerFromId(source); if not xPlayer then return nil end
+    local ident = getIdent(xPlayer); if not ident then return nil end
+    local prog = loadExtended(ident) or {}
+    local certs = {}
+    pcall(function()
+        certs = MySQL.query.await(
+            'SELECT kind, issued_at, issuer FROM mechanic_certificates WHERE identifier = ? ORDER BY issued_at DESC',
+            { ident }) or {}
+    end)
+    for _, c in ipairs(certs) do c.name = (c.kind == 'meister') and 'Meister' or 'Geselle' end
+    local portfolio = {}
+    pcall(function()
+        portfolio = MySQL.query.await([[
+            SELECT plate, action, timestamp FROM mechanic_portfolio
+             WHERE identifier = ? ORDER BY timestamp DESC LIMIT 25
+        ]], { ident }) or {}
+    end)
+    return {
+        rank   = TIER_RANK[prog.tier or 'lehrling'] or 0,
+        tier   = prog.tier or 'lehrling',
+        level  = tonumber(prog.level)    or 0,
+        xp     = tonumber(prog.xp)       or 0,
+        specs  = {
+            engine    = tonumber(prog.spec_engine)    or 0,
+            brakes    = tonumber(prog.spec_brakes)    or 0,
+            paint     = tonumber(prog.spec_paint)     or 0,
+            electrics = tonumber(prog.spec_electrics) or 0,
+            chassis   = tonumber(prog.spec_chassis)   or 0,
+        },
+        certs     = certs,
+        portfolio = portfolio,
+    }
+end)

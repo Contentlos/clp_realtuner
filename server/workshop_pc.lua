@@ -83,16 +83,22 @@ local function fullStatus(workshopId)
             }
         end
     end)
-    local orders = MySQL.query.await([[
-        SELECT id, item, category, amount, unit_cost, total_cost,
-               ordered_by, ordered_at, delivers_at, delivered_at, status
-          FROM mechanic_workshop_orders
-         WHERE workshop_id = ?
-         ORDER BY id DESC LIMIT 100
-    ]], { workshopId }) or {}
-    local prices = MySQL.query.await(
-        'SELECT service, price FROM mechanic_workshop_prices WHERE workshop_id = ?',
-        { workshopId }) or {}
+    local orders = {}
+    pcall(function()
+        orders = MySQL.query.await([[
+            SELECT id, item, category, amount, unit_cost, total_cost,
+                   ordered_by, ordered_at, delivers_at, delivered_at, status
+              FROM mechanic_workshop_orders
+             WHERE workshop_id = ?
+             ORDER BY id DESC LIMIT 100
+        ]], { workshopId }) or {}
+    end)
+    local prices = {}
+    pcall(function()
+        prices = MySQL.query.await(
+            'SELECT service, price FROM mechanic_workshop_prices WHERE workshop_id = ?',
+            { workshopId }) or {}
+    end)
     return {
         workshop = {
             id = row.id, name = row.name, owner = row.owner,
@@ -306,11 +312,16 @@ lib.callback.register('clp_realtuner:wspc:depositCash', function(source, worksho
     if amount <= 0 then return false end
     if xPlayer.getMoney() < amount then return false, 'Nicht genug Bargeld.' end
     xPlayer.removeMoney(amount)
-    pcall(function()
-        MySQL.update.await(
+    local affected = 0
+    local dbOk = pcall(function()
+        affected = MySQL.update.await(
             'UPDATE mechanic_workshops SET bank = bank + ?, updated_at = ? WHERE id = ?',
             { amount, os.time(), workshopId })
     end)
+    if not dbOk or (tonumber(affected) or 0) < 1 then
+        xPlayer.addMoney(amount)
+        return false, 'Datenbankfehler – Betrag zurueckerstattet.'
+    end
     HCM.server.log(xPlayer, 'wspc:deposit', nil, nil, { id = workshopId, amount = amount })
     return true, 'Eingezahlt: $' .. amount
 end)

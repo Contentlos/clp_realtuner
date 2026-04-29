@@ -119,24 +119,31 @@ end
 local function dryingPhase(veh, seconds)
     local dict = 'core'
     if not loadParticle(dict) then Wait(seconds * 1000); return end
+    -- Particles parallel zum progressCircle laufen lassen.
+    local total = seconds * 1000
+    local stop = false
+    CreateThread(function()
+        local start = GetGameTimer()
+        while not stop and GetGameTimer() - start < total do
+            if DoesEntityExist(veh) then
+                local center = GetEntityCoords(veh)
+                UseParticleFxAssetNextCall(dict)
+                SetParticleFxNonLoopedColour(0.85, 0.85, 0.9)
+                SetParticleFxNonLoopedAlpha(0.18)
+                StartParticleFxNonLoopedAtCoord('ent_amb_smoke_foundry',
+                    center.x + math.random() - 0.5, center.y + math.random() - 0.5, center.z + 0.6,
+                    0.0, 0.0, 0.0, 0.4, false, false, false)
+            end
+            Wait(300)
+        end
+    end)
     lib.progressCircle({
         label = 'Trocknet...',
-        duration = seconds * 1000,
+        duration = total,
         useWhileDead = false, canCancel = false,
         disable = { car = true, move = false, combat = true },
     })
-    -- Wenig Particles waehrend des Trocknens
-    local start = GetGameTimer()
-    while GetGameTimer() - start < 1500 do
-        local center = GetEntityCoords(veh)
-        UseParticleFxAssetNextCall(dict)
-        SetParticleFxNonLoopedColour(0.85, 0.85, 0.9)
-        SetParticleFxNonLoopedAlpha(0.18)
-        StartParticleFxNonLoopedAtCoord('ent_amb_smoke_foundry',
-            center.x + math.random() - 0.5, center.y + math.random() - 0.5, center.z + 0.6,
-            0.0, 0.0, 0.0, 0.4, false, false, false)
-        Wait(300)
-    end
+    stop = true
 end
 
 -- ===========================================================================

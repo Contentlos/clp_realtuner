@@ -183,8 +183,9 @@
 
     // Open / Close ---------------------------------------------------------
     function open(payload) {
-        elPlate.textContent = payload.plate || '';
-        if (elTitle) elTitle.textContent = '3D-INSPECTOR · ' + (payload.modelName || '').toUpperCase();
+        const slots = payload.slots || {};
+        elPlate.textContent = slots.plate || payload.plate || '';
+        if (elTitle) elTitle.textContent = '3D-INSPECTOR · ' + ((slots.modelName || payload.modelName || '').toUpperCase());
         const byCat = { body: [], wheels: [], paint: [], interior: [], engine: [] };
         for (const slot of (payload.slots.mods || [])) (byCat[slot.category] || byCat.body).push(slot);
         // Body section

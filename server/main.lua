@@ -158,6 +158,14 @@ lib.callback.register('clp_realtuner:remove', function(source, plate, slotKey)
 end)
 
 -- Lackierung ------------------------------------------------------------------
+-- Verbrauchsmaterial pro Lacktyp. Spraycan (Config.Paint.Tool) ist
+-- wiederverwendbares Werkzeug und wird NICHT entfernt.
+local PAINT_CONSUMABLES = {
+    matte    = { 'paint_can_matt' },
+    metallic = { 'paint_can_metallic', 'paint_clearcoat' },
+    pearl    = { 'paint_can_pearl', 'paint_clearcoat', 'paint_primer' },
+}
+
 lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, primaryRGB, secondaryRGB, clientQuality)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return false, 'no_player' end
@@ -166,6 +174,25 @@ lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, 
     plate = HCM.util.normalizePlate(plate)
     local rec = HCM.server.loadRecord(plate)
     if not rec then return false, 'no_record' end
+
+    -- Verbrauchsmaterial autoritativ entfernen. Erst pruefen dass alles da
+    -- ist, dann atomar entfernen; bei Fehlschlag rollback.
+    local consumables = PAINT_CONSUMABLES[colorType] or PAINT_CONSUMABLES.matte
+    for _, itm in ipairs(consumables) do
+        if (ox:GetItemCount(source, itm) or 0) < 1 then
+            return false, 'missing_item:' .. itm
+        end
+    end
+    local removed = {}
+    for _, itm in ipairs(consumables) do
+        if ox:RemoveItem(source, itm, 1) then
+            removed[#removed+1] = itm
+        else
+            -- Rollback: bereits entfernte Items zurueckgeben
+            for _, back in ipairs(removed) do ox:AddItem(source, back, 1) end
+            return false, 'remove_failed:' .. itm
+        end
+    end
 
     -- Server bleibt autoritativ. clientQuality (Bewegung + Distanz) ist
     -- nur ein Modifier auf perfectChance + Streuung im Imperfekt-Bereich.

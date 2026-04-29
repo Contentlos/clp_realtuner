@@ -95,8 +95,9 @@ local function stationOptions(ws, st)
             canInteract = isStaff,
             onSelect = function()
                 local ped = PlayerPedId()
-                local veh = GetClosestVehicle and GetClosestVehicle(st.coords.x, st.coords.y, st.coords.z, 5.0, 0, 70)
-                    or GetVehiclePedIsIn(ped, true)
+                -- 0 ist truthy in Lua, daher explizit gegen 0 vergleichen
+                local veh = GetClosestVehicle and GetClosestVehicle(st.coords.x, st.coords.y, st.coords.z, 5.0, 0, 70) or 0
+                if veh == 0 then veh = GetVehiclePedIsIn(ped, true) end
                 if veh and veh ~= 0 and DoesEntityExist(veh) then
                     if HCM_C.toggleLift then HCM_C.toggleLift(veh) end
                 else

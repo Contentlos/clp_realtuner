@@ -363,6 +363,15 @@ local function persistVisualMods(veh)
     }
     local ok, msg = lib.callback.await('clp_realtuner:visual:apply', 5000, plate, payload)
     if ok then
+        -- Lokalen Record-Cache aktualisieren, damit der 2s Apply-Loop in
+        -- tune_advanced.lua die neuen Mods kennt und nicht mit den alten
+        -- visualMods aus dem Cache ueberschreibt. Inspector-Open-Guard greift
+        -- hier nicht mehr, weil State.open beim closeInspector schon false ist.
+        local rec = HCM_C.records and HCM_C.records[plate]
+        if rec then
+            rec.tuning_data = rec.tuning_data or {}
+            rec.tuning_data.visualMods = payload
+        end
         lib.notify({ title = 'Tuning', description = 'Visuelles Tuning gespeichert.', type = 'success' })
     else
         lib.notify({ title = 'Tuning', description = 'Server: ' .. tostring(msg or 'Fehler'), type = 'error' })

@@ -409,6 +409,10 @@ function HCM_C.openInspector(veh)
     end)
 end
 
+function HCM_C.inspectorOpen()
+    return State.open == true
+end
+
 function HCM_C.closeInspector(commit)
     if not State.open then return end
     local veh = State.veh

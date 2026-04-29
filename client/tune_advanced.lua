@@ -232,7 +232,12 @@ CreateThread(function()
                 if rec.tuning_data and rec.tuning_data.engine_swap and ENGINE_PRESETS[rec.tuning_data.engine_swap] then
                     ForceVehicleEngineAudio(veh, rec.tuning_data.engine_swap)
                 end
-                if HCM_C.applyVisualMods then HCM_C.applyVisualMods(veh, rec) end
+                -- Visuelle Mods nur re-applien, wenn der 3D-Inspector NICHT
+                -- offen ist - sonst wuerde die Live-Preview alle 2s vom
+                -- gespeicherten Record ueberschrieben.
+                if HCM_C.applyVisualMods and not (HCM_C.inspectorOpen and HCM_C.inspectorOpen()) then
+                    HCM_C.applyVisualMods(veh, rec)
+                end
             end
         end
     end

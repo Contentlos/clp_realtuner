@@ -169,15 +169,29 @@ lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, 
     local rec = HCM.server.loadRecord(plate)
     if not rec then return false, 'no_record' end
 
-    -- Skill-Bonus auf die clientseitig gemessene Qualitaet (Bewegung +
-    -- Distanz wurden waehrend des Spruehens gesampelt). Server clamped
-    -- Wertebereich + addiert Skill-Bonus 0..15%.
+    -- Server bleibt autoritativ. clientQuality (Bewegung + Distanz) ist
+    -- nur ein Modifier auf perfectChance + Streuung im Imperfekt-Bereich.
+    -- So kann ein gespoofter clientQuality=100 maximal +20% perfect-Chance
+    -- bringen, aber nicht direkt 100/perfect garantieren.
+    local baseRate
+    if colorType == 'pearl'        then baseRate = Config.Paint.PearlPerfectRate
+    elseif colorType == 'metallic' then baseRate = Config.Paint.MetallicPerfectRate
+    else                                baseRate = Config.Paint.MattePerfectRate end
     local skill = HCM.server.getSkill(xPlayer)
-    local cq = tonumber(clientQuality) or 50.0
-    cq = HCM.util.clamp(cq, 0.0, 100.0)
-    local skillBonus = (skill.level - 1) * Config.Skill.FailRateReductionPerLevel * 100.0
-    local quality = HCM.util.clamp(cq + skillBonus, Config.Paint.QualityFloor, 100.0)
-    local perfect = quality >= 92.0
+    local skillBonus  = (skill.level - 1) * Config.Skill.FailRateReductionPerLevel
+    local cq = HCM.util.clamp(tonumber(clientQuality) or 50.0, 0.0, 100.0)
+    local clientFactor = cq / 100.0                        -- 0..1
+    local clientChanceMod = (clientFactor - 0.5) * 0.4     -- -0.2..+0.2
+    local perfectChance = HCM.util.clamp(baseRate + skillBonus + clientChanceMod, 0.02, 0.95)
+    local perfect = math.random() < perfectChance
+    local quality
+    if perfect then
+        quality = Config.Paint.QualityPerfect
+    else
+        -- Imperfekt-Range: Floor + Streuung[0..30] + clientBonus[0..15]
+        quality = Config.Paint.QualityFloor + math.random() * 30.0 + clientFactor * 15.0
+    end
+    quality = HCM.util.clamp(quality, Config.Paint.QualityFloor, 100.0)
 
     HCM.server.applyPatch(plate, { paint_quality = HCM.util.round(quality, 2) })
     HCM.server.log(xPlayer, 'paint', plate, rec.vin, {

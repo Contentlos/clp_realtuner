@@ -20,14 +20,20 @@
 
     function el(tag, props, children) {
         const e = document.createElement(tag);
-        if (props) for (const k of Object.keys(props)) {
-            if (k === 'class') e.className = props[k];
-            else if (k === 'text') e.textContent = props[k];
-            else if (k === 'html') e.innerHTML = props[k];
-            else if (k.startsWith('on') && typeof props[k] === 'function') e.addEventListener(k.slice(2).toLowerCase(), props[k]);
-            else e.setAttribute(k, props[k]);
+        if (props) {
+            for (const k of Object.keys(props)) {
+                if (k === 'class') e.className = props[k];
+                else if (k === 'text') e.textContent = props[k];
+                else if (k === 'html') e.innerHTML = props[k];
+                else if (k.startsWith('on') && typeof props[k] === 'function') e.addEventListener(k.slice(2).toLowerCase(), props[k]);
+                else e.setAttribute(k, props[k]);
+            }
         }
-        if (children) for (const c of children) if (c) e.appendChild(c);
+        if (children) {
+            for (const c of children) {
+                if (c) e.appendChild(c);
+            }
+        }
         return e;
     }
 

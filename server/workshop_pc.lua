@@ -428,16 +428,21 @@ local function processDeliveries()
                     { 'overflow', now, r.id, 'pending' })
             end)
         else
-            -- Stock erhoehen + Order delivered markieren (in einer Transaktion-aehnlichen Sequenz)
+            -- Order zuerst auf 'delivered' setzen (mit Status-Guard), erst dann
+            -- Stock einbuchen. Schlaegt das UPDATE fehl/ist 0 affected, wird
+            -- die Order beim naechsten Tick erneut versucht - aber es wird
+            -- niemals doppelt eingelagert.
             pcall(function()
-                MySQL.insert.await([[
-                    INSERT INTO mechanic_workshop_stock (workshop_id, item, amount, min_stock, category)
-                    VALUES (?, ?, ?, 0, ?)
-                    ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), category = VALUES(category)
-                ]], { r.workshop_id, r.item, r.amount, cat })
-                MySQL.update.await(
+                local affected = MySQL.update.await(
                     'UPDATE mechanic_workshop_orders SET status = ?, delivered_at = ? WHERE id = ? AND status = ?',
                     { 'delivered', now, r.id, 'pending' })
+                if (tonumber(affected) or 0) >= 1 then
+                    MySQL.insert.await([[
+                        INSERT INTO mechanic_workshop_stock (workshop_id, item, amount, min_stock, category)
+                        VALUES (?, ?, ?, 0, ?)
+                        ON DUPLICATE KEY UPDATE amount = amount + VALUES(amount), category = VALUES(category)
+                    ]], { r.workshop_id, r.item, r.amount, cat })
+                end
             end)
         end
     end
@@ -448,13 +453,18 @@ local function processDeliveries()
          ORDER BY id ASC LIMIT 20
     ]], { now - 24 * 3600 }) or {}
     for _, s in ipairs(stale) do
+        -- Refund zuerst, erst dann Order auf 'cancelled'. Schlaegt der Refund
+        -- fehl, bleibt die Order auf 'overflow' und der naechste Tick
+        -- versucht es erneut.
         pcall(function()
-            MySQL.update.await(
-                'UPDATE mechanic_workshop_orders SET status = ?, delivered_at = ? WHERE id = ?',
-                { 'cancelled', now, s.id })
-            MySQL.update.await(
+            local refunded = MySQL.update.await(
                 'UPDATE mechanic_workshops SET bank = bank + ?, updated_at = ? WHERE id = ?',
                 { tonumber(s.total_cost) or 0, now, s.workshop_id })
+            if (tonumber(refunded) or 0) >= 1 then
+                MySQL.update.await(
+                    'UPDATE mechanic_workshop_orders SET status = ?, delivered_at = ? WHERE id = ? AND status = ?',
+                    { 'cancelled', now, s.id, 'overflow' })
+            end
         end)
     end
 end

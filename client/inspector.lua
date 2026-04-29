@@ -419,8 +419,12 @@ function HCM_C.closeInspector(commit)
     SetNuiFocus(false, false)
     SetNuiFocusKeepInput(false)
     SendNUIMessage({ type = 'inspector:close' })
-    if commit then persistVisualMods(veh) end
+    -- State VOR persistVisualMods nillen, weil persistVisualMods via
+    -- lib.callback.await yieldet und ein paralleles openInspector den
+    -- State sonst neu setzen wuerde, den wir hier nach dem await
+    -- ueberschreiben - das wuerde die neue Session zerstoeren.
     State.veh, State.snapshot = nil, nil
+    if commit then persistVisualMods(veh) end
 end
 
 -- NUI Callbacks ---------------------------------------------------------------

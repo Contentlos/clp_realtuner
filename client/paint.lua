@@ -79,8 +79,8 @@ local function sprayPhase(veh, phase, duration, rgb)
     PlaySoundFromEntity(soundId, 'Start_Spray', PlayerPedId(),
         Config.Paint.SoundSet or 'PAINT_DRIPS_SOUNDS', true, 0)
 
-    -- Spray-Anim einmalig
-    RequestAnimDict('weapons@projectile@')
+    -- Spray-Anim einmalig - lib.requestAnimDict blockiert bis geladen
+    lib.requestAnimDict('weapons@projectile@', 5000)
     if HasAnimDictLoaded('weapons@projectile@') then
         TaskPlayAnim(PlayerPedId(), 'weapons@projectile@', 'throw_m_fb_stand',
             2.0, 2.0, -1, 49, 0, false, false, false)

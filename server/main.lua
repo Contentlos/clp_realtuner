@@ -160,7 +160,7 @@ lib.callback.register('clp_realtuner:remove', function(source, plate, slotKey)
 end)
 
 -- Lackierung ------------------------------------------------------------------
-lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, primaryRGB, secondaryRGB, pearlRGB)
+lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, primaryRGB, secondaryRGB, clientQuality)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return false, 'no_player' end
     if not isMechanic(xPlayer) and not isAdmin(xPlayer) then return false, 'not_mechanic' end
@@ -169,19 +169,20 @@ lib.callback.register('clp_realtuner:paint', function(source, plate, colorType, 
     local rec = HCM.server.loadRecord(plate)
     if not rec then return false, 'no_record' end
 
-    -- Fehlerrate abhängig vom Farbtyp & Skill
-    local baseRate
-    if colorType == 'pearl' then baseRate = Config.Paint.PearlPerfectRate
-    elseif colorType == 'metallic' then baseRate = Config.Paint.MetallicPerfectRate
-    else baseRate = Config.Paint.MattePerfectRate end
+    -- Skill-Bonus auf die clientseitig gemessene Qualitaet (Bewegung +
+    -- Distanz wurden waehrend des Spruehens gesampelt). Server clamped
+    -- Wertebereich + addiert Skill-Bonus 0..15%.
     local skill = HCM.server.getSkill(xPlayer)
-    local perfectChance = HCM.util.clamp(baseRate + (skill.level - 1) * Config.Skill.FailRateReductionPerLevel, 0.05, 0.95)
-    local perfect = math.random() < perfectChance
-    local quality = perfect and Config.Paint.QualityPerfect or (Config.Paint.QualityFloor + math.random() * 40.0)
+    local cq = tonumber(clientQuality) or 50.0
+    cq = HCM.util.clamp(cq, 0.0, 100.0)
+    local skillBonus = (skill.level - 1) * Config.Skill.FailRateReductionPerLevel * 100.0
+    local quality = HCM.util.clamp(cq + skillBonus, Config.Paint.QualityFloor, 100.0)
+    local perfect = quality >= 92.0
 
     HCM.server.applyPatch(plate, { paint_quality = HCM.util.round(quality, 2) })
     HCM.server.log(xPlayer, 'paint', plate, rec.vin, {
-        type = colorType, primary = primaryRGB, secondary = secondaryRGB, pearl = pearlRGB, quality = quality
+        type = colorType, primary = primaryRGB, secondary = secondaryRGB,
+        client_quality = cq, final_quality = quality,
     })
     if perfect then HCM.server.addSkillXP(xPlayer, Config.Skill.XP.paint_success) end
     return true, { perfect = perfect, quality = quality }
